@@ -59,6 +59,8 @@ private Set&lt;Livre&gt; livres;
 private Bibliotheque bibliotheque;</code></pre>
   <p><code>idChambre</code> devient <code>id_chambre</code>. <code>typeC</code> devient <code>typec</code>.</p>
 </section>
+<section class="plate" data-find="unidirectionnel bidirectionnel sens cardinalité mappedby">
+<h2>Un seul sens / deux sens</h2><p>Les quatre cardinalités 1:1, 1:N, N:1, N:N admettent les deux directions. <code>mappedBy</code> est du côté inverse ; en 1:N bidirectionnel, la clé étrangère est gérée par <code>@ManyToOne</code>.</p><p><a href="../lessons/04-associations.html">Voir les huit exemples interactifs</a></p></section>
 <section class="plate" data-find="repository jparepository">
   <h2>Repository</h2>
   <pre><code data-lang="java">@Repository

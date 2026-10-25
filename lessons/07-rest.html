@@ -20,6 +20,40 @@
 <p class="lede">Le controller reçoit l'appel HTTP et appelle le service. L'adresse est faite de quatre morceaux.</p>
 <p class="cite">WS REST. Une page du PDF met le context path /foyer. Les URL du chapitre utilisent /tpfoyer. Tu suis application.properties.</p>
 <p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+
+<section class="plate learn-first" aria-label="REST débutant">
+<h2>Avant de commencer : c'est quoi une API REST ?</h2>
+<p>Imagine la réception d'un hôtel : <strong>Postman</strong> est le client. Le <strong>Controller</strong> reçoit sa demande, le <strong>Service</strong> travaille, et le <strong>Repository</strong> interroge MySQL. La réponse revient souvent sous forme de <strong>JSON</strong>.</p>
+<p><strong>HTTP</strong> est le protocole de communication. <strong>URL</strong> est l'adresse. <strong>JSON</strong> représente les données, comme <code>{"nomBloc":"A"}</code>.</p>
+<h3>1. Quatre méthodes à connaître</h3>
+<table><thead><tr><th>Méthode</th><th>But</th><th>Exemple TP</th></tr></thead><tbody>
+<tr><td><code>GET</code></td><td>Lire</td><td>Tous les blocs ou un bloc</td></tr>
+<tr><td><code>POST</code></td><td>Créer</td><td>Ajouter un bloc avec un JSON</td></tr>
+<tr><td><code>PUT</code></td><td>Modifier</td><td>Modifier un bloc</td></tr>
+<tr><td><code>DELETE</code></td><td>Supprimer</td><td>Supprimer un bloc par ID</td></tr>
+</tbody></table>
+<h3>2. L'adresse complète</h3>
+<p><code>http://localhost:8089</code> = serveur + port ; <code>/tpfoyer</code> = contexte ; <code>/bloc</code> = classe du controller ; <code>/retrieve-all-blocs</code> = méthode.</p>
+<p><strong>Attention :</strong> si <code>server.servlet.context-path=/lab</code> dans tes <code>application.properties</code>, utilise <code>/lab</code> dans l'URL. Le contexte <code>/tpfoyer</code> n'est pas universel.</p>
+<h3>3. Ton premier test dans Postman</h3>
+<ol><li>Démarre MAMP/MySQL et ton application Spring Boot dans IntelliJ.</li>
+<li>Dans Postman, choisis <strong>GET</strong> et colle <code>http://localhost:8089/tpfoyer/bloc/retrieve-all-blocs</code>, en adaptant le contexte.</li>
+<li>Clique sur <strong>Send</strong> et regarde le code de réponse. <code>[]</code> signifie « liste vide », pas « erreur ».</li></ol>
+<h3>4. Envoyer un objet JSON</h3>
+<p>Choisis <strong>POST</strong>, URL <code>/tpfoyer/bloc/add-bloc</code>, puis <strong>Body → raw → JSON</strong> dans Postman :</p>
+<pre><code data-lang="json">{
+  "nomBloc": "A",
+  "capaciteBloc": 100
+}</code></pre>
+<p>Le controller récupère cet objet avec <code>@RequestBody</code>. MySQL peut attribuer automatiquement l'<code>idBloc</code> configuré avec <code>IDENTITY</code>.</p>
+<h3>5. Les codes de réponse HTTP</h3>
+<ul><li><code>200 OK</code> : succès ; c'est souvent le code des méthodes de ce TP.</li>
+<li><code>201 Created</code> : code de création quand le controller est configuré pour le retourner, pas automatique ici.</li>
+<li><code>400 Bad Request</code> : erreur dans les données ou leur décodage.</li>
+<li><code>404 Not Found</code> : URL inexistante, ou ressource absente si l'API gère ce cas.</li>
+<li><code>500 Internal Server Error</code> : exception non gérée, par exemple <code>findById(id).get()</code> sur un élément absent.</li></ul>
+<p class="cite">Le mini-Postman interactif ci-dessous est une simulation visuelle, pas une vraie connexion à ta base. Fais ensuite ces appels dans Postman.</p>
+</section>
 <h2>Les quatre morceaux</h2>
 <p><code>http://localhost:8089/tpfoyer/bloc/retrieve-all-blocs</code></p>
 <ul>
@@ -68,7 +102,7 @@ public class BlocRestController {
   "capaciteBloc": 100
 }</code></pre>
 <p>Les noms sont ceux des champs Java : <code>nomBloc</code>, pas <code>nom_bloc</code>.</p>
-<p>Un <code>boolean</code> primitif absent donne une erreur 400 sur Boot 4, sauf si la ligne Jackson est dans <code>application.properties</code>. Envoie <code>true</code> ou <code>false</code>.</p>
+<p>Avec Jackson 3 dans la configuration du TP, un champ primitif <code>boolean</code> absent peut provoquer un HTTP 400 pendant la désérialisation. La propriété <code>spring.jackson.deserialization.fail-on-null-for-primitives=false</code> modifie ce comportement. L’option la plus claire reste d’envoyer <code>true</code> ou <code>false</code>.</p>
 <p>Il n'y a pas de cascade dans ce TP. Tu crées chaque entité avec son propre POST.</p>
 <h2>Les quatre couches, maintenant que tu les as vues</h2>
 <ol>

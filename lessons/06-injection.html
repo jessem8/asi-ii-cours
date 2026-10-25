@@ -20,6 +20,50 @@
 <p class="lede">Ta classe ne fait pas <code>new</code>. Spring crée les objets et les passe aux autres.</p>
 <p class="cite">Injection des dépendances. Couplage fort : ta classe construit l'autre avec new. Couplage faible : elle demande une interface, Spring fournit l'objet.</p>
 <p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+
+<section class="plate learn-first" aria-label="Injection débutant">
+<h2>Avant de commencer : qui crée les objets ?</h2>
+<p>Le <strong>controller</strong> a besoin du <strong>service</strong>. Le <strong>service</strong> a besoin du <strong>repository</strong>. Spring peut créer ces objets et les assembler : c'est l'<strong>injection des dépendances</strong>.</p>
+<h3>Les trois rôles</h3>
+<ol><li><strong>Repository :</strong> utilise JPA pour lire et écrire dans MySQL.</li>
+<li><strong>Service :</strong> contient la logique métier et appelle le repository.</li>
+<li><strong>Controller :</strong> reçoit les requêtes HTTP et appelle le service.</li></ol>
+<h3>1. Une interface est un contrat</h3>
+<pre><code data-lang="java">public interface IBlocService {
+    List&lt;Bloc&gt; retrieveAllBlocs();
+}</code></pre>
+<p>Le contrat dit ce que le service sait faire. Il ne dit pas encore <em>comment</em>.</p>
+<h3>2. Le service exécute le travail</h3>
+<pre><code data-lang="java">@Service
+@AllArgsConstructor
+public class BlocServiceImpl implements IBlocService {
+    private final BlocRepository blocRepository;
+
+    @Override
+    public List&lt;Bloc&gt; retrieveAllBlocs() {
+        return blocRepository.findAll();
+    }
+}</code></pre>
+<p><code>@Service</code> demande à Spring de gérer l'implémentation. <code>@AllArgsConstructor</code> génère le constructeur. Spring y passe un repository utilisable.</p>
+<h3>3. Le controller demande le contrat</h3>
+<pre><code data-lang="java">@RestController
+@AllArgsConstructor
+@RequestMapping("/bloc")
+public class BlocRestController {
+    private final IBlocService blocService;
+
+    @GetMapping("/retrieve-all-blocs")
+    public List&lt;Bloc&gt; getBlocs() {
+        return blocService.retrieveAllBlocs();
+    }
+}</code></pre>
+<p>Spring fournit <code>BlocServiceImpl</code> au controller car cette classe implémente <code>IBlocService</code>.</p>
+<h3>4. Dépannage</h3>
+<ul><li><strong>Pas de <code>@Service</code> :</strong> Spring peut ne pas trouver d'implémentation à injecter.</li>
+<li><strong>Pas de constructeur injectable :</strong> la dépendance n'est pas fournie par ce mécanisme.</li>
+<li><strong>Plusieurs implémentations :</strong> indique laquelle choisir avec <code>@Qualifier</code> ou <code>@Primary</code>.</li></ul>
+<p class="okbox"><strong>À retenir :</strong> « Je déclare ce dont j'ai besoin ; Spring me le fournit. » Les extraits nécessitent les imports Java habituels quand tu les colles dans de vrais fichiers.</p>
+</section>
 <p>Sans injection, une classe pourrait créer une implémentation concrète avec <code>new DaoImpl()</code>. Elle devient alors fortement liée à cette implémentation. On ne peut pas faire <code>new BlocRepository()</code>, car <code>BlocRepository</code> est une interface.</p>
 <p>Avec Spring, tu déclares le champ. Spring le remplit.</p>
 <pre><code data-lang="java">@Service

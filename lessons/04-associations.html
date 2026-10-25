@@ -20,7 +20,21 @@
 <p class="lede">Deux questions : combien d’objets sont liés ? Et quel côté possède la relation ? <code>mappedBy</code> indique le côté inverse, pas systématiquement le « fils ».</p>
 <p class="cite">Associations. Dans le compte rendu : Foyer est le fils de Universite. Etudiant est le fils de Reservation.</p>
 <p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
-<h2>Les quatre cas du cours</h2>
+
+<section class="plate" aria-label="Sens et cardinalité">
+<h2>Cardinalité ≠ direction</h2>
+<p><strong>Cardinalité</strong> répond à « combien ? » : <code>1:1</code>, <code>1:N</code>, <code>N:1</code> ou <code>N:N</code>. <strong>Direction</strong> répond à « quelle classe connaît l'autre ? ».</p>
+<p><strong>Un seul sens :</strong> A référence B, mais B ne référence pas A. <strong>Deux sens :</strong> A référence B et B référence A. Les quatre cardinalités peuvent être unidirectionnelles ou bidirectionnelles.</p>
+<table><thead><tr><th>Relation</th><th>Un seul sens</th><th>Deux sens</th></tr></thead><tbody>
+<tr><td>1:1</td><td>Universite → Foyer</td><td>Universite ↔ Foyer</td></tr>
+<tr><td>1:N</td><td>Chambre → Réservations</td><td>Foyer ↔ Blocs</td></tr>
+<tr><td>N:1</td><td>Bloc → Foyer</td><td>Bloc ↔ Foyer</td></tr>
+<tr><td>N:N</td><td>Reservation → Étudiants</td><td>Reservation ↔ Étudiant</td></tr></tbody></table>
+<h3>mappedBy en une phrase</h3>
+<p><code>mappedBy = "foyer"</code> signifie « le côté propriétaire utilise un champ Java qui s'appelle <code>foyer</code> ». Ce n'est <strong>pas</strong> le nom d'une table SQL. Le mot <code>mappedBy</code> apparaît sur le côté inverse d'une relation bidirectionnelle, jamais sur <code>@ManyToOne</code>.</p>
+<p>En <strong>1:N bidirectionnel</strong>, <code>Bloc.@ManyToOne</code> garde la clé étrangère ; <code>Foyer.@OneToMany(mappedBy = "foyer")</code> est inverse. En <strong>N:N</strong>, le propriétaire définit la table de jointure. <code>@JsonIgnore</code> évite ici une récursion JSON, mais ne choisit pas le propriétaire JPA.</p>
+</section>
+<h2>Les quatre exemples donnés dans le TP</h2>
 <p><strong>Un vers un, dans les deux sens.</strong> Universite possède <code>foyer</code>. Foyer a <code>mappedBy = "foyer"</code> et <code>@JsonIgnore</code>. La clé <code>foyer_id_foyer</code> est dans la table <code>universite</code>.</p>
 <pre><code data-lang="java">// Universite, le propriétaire
 @OneToOne
@@ -56,7 +70,7 @@ private Set&lt;Reservation&gt; reservations;</code></pre>
 <p><code>ddl-auto=update</code> ne supprime pas automatiquement les anciennes colonnes. Sur une base de TP jetable, tu peux recréer le schéma après avoir sauvegardé ce que tu veux garder. Ne supprime jamais une base contenant des données utiles.</p>
 <div class="plate">
   <h2>Essaie toi-même</h2>
-  <p>Choisis un exemple du cours, ou change les noms. Lis les deux classes et le nom de la table.</p>
+  <p>Choisis un exemple ou change les noms. Pour les huit combinaisons, utilise le diagramme interactif situé au début de la page. Les noms SQL varient selon la stratégie de nommage.</p>
   <div class="presets">
     <button type="button" data-preset='{"a":"Universite","b":"Foyer","ida":"idUniversite","idb":"idFoyer","kind":"oto","dir":"bi","fils":"b"}'>Universite et Foyer</button>
     <button type="button" data-preset='{"a":"Foyer","b":"Bloc","ida":"idFoyer","idb":"idBloc","kind":"otm","dir":"bi","fils":"b"}'>Foyer et Bloc</button>
