@@ -55,25 +55,42 @@
     const id = box.getAttribute("data-id");
     const key = "labprep:quiz:" + page + ":" + id;
     const feedback = box.querySelector(".feedback");
-    let saved = null;
-    try { saved = localStorage.getItem(key); } catch (e) {}
-    box.querySelectorAll("button").forEach(function (btn) {
-      function mark(choice) {
-        const good = choice === answer;
-        box.querySelectorAll("button").forEach(function (b) {
-          b.setAttribute("aria-pressed", b.getAttribute("data-i") === choice ? "true" : "false");
-        });
-        if (feedback) {
-          feedback.hidden = false;
-          feedback.className = "feedback " + (good ? "good" : "bad");
-          feedback.textContent = (good ? "Oui. " : "Non. ") + why;
-        }
+    const choices = Array.from(box.querySelectorAll("button[data-i]"));
+    const right = choices.find(function (b) { return b.getAttribute("data-i") === answer; });
+    if (!right) return;
+    if (feedback) {
+      feedback.setAttribute("role", "status");
+      feedback.setAttribute("aria-live", "polite");
+    }
+
+    function mark(choice, persist) {
+      const good = choice === answer;
+      choices.forEach(function (btn) {
+        const selected = btn.getAttribute("data-i") === choice;
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+        btn.dataset.state = selected ? (good ? "correct" : "incorrect") : "idle";
+        if (!good && btn === right) btn.dataset.state = "answer";
+      });
+      if (feedback) {
+        feedback.hidden = false;
+        feedback.className = "feedback " + (good ? "good" : "bad");
+        feedback.textContent = good
+          ? "Correct. " + why
+          : "Pas encore. Bonne réponse : " + right.textContent.trim() + ". " + why;
+      }
+      if (persist) {
         try { localStorage.setItem(key, choice); } catch (e) {}
         report();
       }
-      btn.addEventListener("click", function () { mark(btn.getAttribute("data-i")); });
-      if (saved !== null && btn.getAttribute("data-i") === saved) mark(saved);
+    }
+
+    choices.forEach(function (btn) {
+      btn.addEventListener("click", function () { mark(btn.getAttribute("data-i"), true); });
     });
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved !== null && choices.some(function (b) { return b.getAttribute("data-i") === saved; })) mark(saved, false);
+    } catch (e) {}
   });
 
   document.querySelectorAll(".check input").forEach(function (input) {
@@ -92,12 +109,17 @@
     let total = checks.length + quizzes.length;
     checks.forEach(function (c) { if (c.checked) done++; });
     quizzes.forEach(function (q) {
-      try { if (localStorage.getItem("labprep:quiz:" + page + ":" + q.getAttribute("data-id"))) done++; } catch (e) {}
+      try { if (localStorage.getItem("labprep:quiz:" + page + ":" + q.getAttribute("data-id")) === q.getAttribute("data-answer")) done++; } catch (e) {}
     });
     const bar = document.querySelector("[data-progress]");
     if (bar && total) {
       const pct = Math.round((done / total) * 100);
       bar.querySelector("span").style.width = pct + "%";
+      bar.setAttribute("role", "progressbar");
+      bar.setAttribute("aria-label", "Progression de la page");
+      bar.setAttribute("aria-valuemin", "0");
+      bar.setAttribute("aria-valuemax", String(total));
+      bar.setAttribute("aria-valuenow", String(done));
       const label = document.querySelector("[data-progress-label]");
       if (label) label.textContent = done + " sur " + total;
     }
@@ -203,6 +225,56 @@
     if (next) next.addEventListener("click", function () { i = Math.min(items.length - 1, i + 1); paint(); });
     paint();
   });
+
+  const rail = document.querySelector(".rail");
+  if (rail) {
+    rail.id = rail.id || "course-navigation";
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "nav-toggle";
+    toggle.textContent = "Afficher le sommaire";
+    toggle.setAttribute("aria-controls", rail.id);
+    toggle.setAttribute("aria-expanded", "false");
+    rail.parentNode.insertBefore(toggle, rail);
+    root.classList.add("nav-ready");
+    toggle.addEventListener("click", function () {
+      const open = rail.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.textContent = open ? "Masquer le sommaire" : "Afficher le sommaire";
+    });
+  }
+
+  const dashboard = document.querySelector("[data-study-dashboard]");
+  if (dashboard) {
+    let progress = {};
+    try { progress = JSON.parse(localStorage.getItem("labprep:pages") || "{}"); } catch (e) {}
+    const items = Array.from(dashboard.querySelectorAll("[data-hub]"));
+    let done = 0;
+    let total = 0;
+    let next = null;
+    items.forEach(function (item) {
+      const file = item.getAttribute("data-hub");
+      const expected = Number(item.getAttribute("data-total") || "0");
+      const record = progress[file] || {};
+      const count = Math.max(0, Math.min(expected, Number(record.done) || 0));
+      done += count;
+      total += expected;
+      item.textContent = count + " / " + expected;
+      if (count === expected) item.classList.add("complete");
+      else if (!next) next = item.closest("li").querySelector("a");
+    });
+    const summary = dashboard.querySelector("[data-study-summary]");
+    if (summary) summary.textContent = done + " / " + total + " réponses validées";
+    const bar = dashboard.querySelector("[data-study-bar]");
+    if (bar) {
+      bar.style.width = (total ? Math.round(done / total * 100) : 0) + "%";
+    }
+    const link = dashboard.querySelector("[data-next-lesson]");
+    if (link) {
+      link.href = next ? next.getAttribute("href") : "reference/battle-plan.html";
+      link.textContent = next ? "Reprendre : " + next.textContent.trim() : "Tout est validé : réviser le plan";
+    }
+  }
 
   root.addEventListener("keydown", function (e) {
     if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
