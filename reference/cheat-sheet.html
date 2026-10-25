@@ -48,7 +48,7 @@ public class Livre {
 </section>
 <section class="plate" data-find="association fils mappedby jsonignore">
   <h2>Association</h2>
-  <p>Le fils a <code>mappedBy</code> et <code>@JsonIgnore</code>.</p>
+  <p>Attention : <code>mappedBy</code> indique toujours le côté inverse. En 1:N bidirectionnel, <code>Foyer</code> porte <code>mappedBy</code> tandis que <code>Bloc</code> porte <code>@ManyToOne</code> et la clé étrangère.</p>
   <pre><code data-lang="java">// Bibliotheque
 @OneToMany(mappedBy = "bibliotheque")
 @JsonIgnore

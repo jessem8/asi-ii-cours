@@ -60,7 +60,7 @@ public class BlocRestController {
         return blocService.modifyBloc(b);
     }
 }</code></pre>
-<p>GET et DELETE mettent l'id dans l'adresse. POST et PUT mettent l'objet dans le corps. Le nom dans <code>@PathVariable</code> est le nom entre accolades, ici <code>bloc-id</code>. L'argument Java peut s'appeler <code>id</code>.</p>
+<p>Dans ce TP, les méthodes GET par identifiant et DELETE récupèrent l’id dans l’URL avec <code>@PathVariable</code>. Le GET qui liste tous les blocs n’a pas d’id. POST et PUT utilisent un corps JSON avec <code>@RequestBody</code>. Le nom dans l’annotation correspond à <code>bloc-id</code> dans les accolades.</p>
 <h2>Le JSON</h2>
 <pre><code data-lang="json">{
   "idBloc": null,

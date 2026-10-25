@@ -276,6 +276,11 @@
     }
   }
 
+  // Visual teaching components load relative to app.js so GitHub Pages subpaths work offline.
+  const visualScript = document.createElement("script");
+  visualScript.src = new URL("visual-learning.js", document.currentScript.src).href;
+  document.body.appendChild(visualScript);
+
   root.addEventListener("keydown", function (e) {
     if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
     if (document.activeElement && /input|textarea|select/i.test(document.activeElement.tagName)) return;

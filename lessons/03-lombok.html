@@ -32,7 +32,7 @@ public class Bloc {
     private String nomBloc;
 }</code></pre>
 <p>Ces quatre annotations vont sur chaque entité du TP.</p>
-<p>Tu n'utilises pas <code>@Data</code>. Avec une association dans les deux sens, <code>@Data</code> fait une boucle dans <code>toString</code>.</p>
+<p>Pour les entités du TP, préfère les quatre annotations ci-dessus à <code>@Data</code>. Cette dernière ajoute notamment <code>toString()</code> et <code>equals()/hashCode()</code> : sur des relations bidirectionnelles, elles peuvent provoquer une récursion ou des effets indésirables. <code>@Data</code> ne remplace pas automatiquement <code>@AllArgsConstructor</code>.</p>
 <p>Si IntelliJ dit <code>cannot find symbol getNom</code>, Lombok n'a pas généré la méthode. Va dans Settings, Build, Compiler, Annotation Processors, et coche Enable annotation processing. Le plugin Lombok doit être installé.</p>
 <fieldset class="quiz" data-id="l1" data-answer="0" data-why="Le cours met ces quatre annotations, pas @Data."><legend>Sur une entité du TP, tu mets</legend><button type="button" data-i="0">Getter, Setter, AllArgsConstructor, NoArgsConstructor</button><button type="button" data-i="1">Data seulement</button><button type="button" data-i="2">rien, Java écrit les getters tout seul</button><p class="feedback" hidden></p></fieldset>
 <fieldset class="quiz" data-id="l2" data-answer="1" data-why="@Data génère toString. Avec un lien dans les deux sens, toString ne s'arrête pas."><legend>Pourquoi on évite @Data sur ces entités ?</legend><button type="button" data-i="0">Boot 4 a supprimé @Data</button><button type="button" data-i="1">toString tourne en boucle avec les associations</button><button type="button" data-i="2">MySQL refuse Lombok</button><p class="feedback" hidden></p></fieldset>

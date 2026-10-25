@@ -20,7 +20,7 @@
 <p class="lede">Ta classe ne fait pas <code>new</code>. Spring crée les objets et les passe aux autres.</p>
 <p class="cite">Injection des dépendances. Couplage fort : ta classe construit l'autre avec new. Couplage faible : elle demande une interface, Spring fournit l'objet.</p>
 <p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
-<p>Avant Spring, un service écrivait <code>new BlocRepository()</code>. Si le repository change, le service doit changer aussi. C'est le couplage fort du cours.</p>
+<p>Sans injection, une classe pourrait créer une implémentation concrète avec <code>new DaoImpl()</code>. Elle devient alors fortement liée à cette implémentation. On ne peut pas faire <code>new BlocRepository()</code>, car <code>BlocRepository</code> est une interface.</p>
 <p>Avec Spring, tu déclares le champ. Spring le remplit.</p>
 <pre><code data-lang="java">@Service
 @AllArgsConstructor

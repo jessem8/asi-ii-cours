@@ -64,7 +64,7 @@
         : "@OneToOne(mappedBy = \"" + childField + "\")\n@JsonIgnore\nprivate " + owner + " " + ownerField + ";";
       const fk = childField + "_" + (child === a ? colA : colB);
       tables.push(ownerTable + "." + fk + "  →  " + (child === a ? ta : tb));
-      note = "Le propriétaire garde la clé étrangère. Le fils a mappedBy et @JsonIgnore. Si la base existe déjà, supprime-la avant de changer l'association.";
+      note = "Le côté propriétaire garde la clé étrangère et le côté inverse déclare mappedBy. @JsonIgnore évite ici la récursion JSON. Sauvegarde les données avant de modifier le schéma.";
     }
 
     if (kind === "oto" && dir === "bi") {
@@ -103,7 +103,7 @@
         codeA = "@ManyToOne\nprivate " + one + " " + oneFieldOnMany + ";";
       }
       tables.push(manyTable + "." + fk + "  →  " + snake(one));
-      note = "Le fils est le côté plusieurs. Il a @ManyToOne et la clé étrangère. L'autre classe a mappedBy et @JsonIgnore. Pas de table de jointure.";
+      note = "Le côté plusieurs possède @ManyToOne et la clé étrangère. La collection du côté un contient mappedBy et, dans cet exemple, @JsonIgnore. Pas de table de jointure.";
     } else if (kind === "otm" && dir !== "bi") {
       const one = dir === "uni-a" ? a : b;
       const many = one === a ? b : a;
@@ -150,7 +150,7 @@
         codeA = "@ManyToMany(mappedBy = \"" + ownerField + "\")\n@JsonIgnore\nprivate Set<" + owner + "> " + childField + ";";
       }
       tables.push(join + " (" + ownerCol + ", " + childCol + ")");
-      note = "Le fils a mappedBy et @JsonIgnore. La table de jointure porte le nom du propriétaire et de son champ.";
+      note = "Le côté inverse a mappedBy et, dans cet exemple, @JsonIgnore. La table de jointure appartient au côté propriétaire.";
     } else if (kind === "mtm") {
       const owner = dir === "uni-a" ? a : b;
       const other = owner === a ? b : a;

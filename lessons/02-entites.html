@@ -38,7 +38,7 @@ private TypeChambre typeC;
 @Temporal(TemporalType.DATE)
 private Date dateNaissance;</code></pre>
 <p><code>STRING</code> enregistre le mot <code>DOUBLE</code>, pas le chiffre 0 ou 1.</p>
-<p>Le nom de la colonne : une majuscule au milieu du mot devient <code>_</code>. <code>idChambre</code> devient <code>id_chambre</code>. <code>typeC</code> devient <code>typec</code>, parce que le C est à la fin. C'est ce qu'on a vu dans ta base <code>tpfoyerdb</code>.</p>
+<p>Dans la configuration de nommage observée sur <code>tpfoyerdb</code>, <code>idChambre</code> devient <code>id_chambre</code> et <code>typeC</code> devient <code>typec</code>. Ce résultat dépend de la stratégie de nommage d’Hibernate, pas d’une règle universelle de MySQL.</p>
 <p>Boot 4 affiche un avertissement sur <code>@Temporal</code>. L'application démarre quand même. Tu gardes l'annotation du cours.</p>
 <fieldset class="quiz" data-id="e1" data-answer="1" data-why="Sans @Id, l'entité n'a pas de clé. Le démarrage échoue."><legend>Tu enlèves @Id et tu lances. Que se passe-t-il ?</legend><button type="button" data-i="0">La table est créée sans clé</button><button type="button" data-i="1">Le démarrage échoue</button><button type="button" data-i="2">MySQL invente une clé tout seul</button><p class="feedback" hidden></p></fieldset>
 <fieldset class="quiz" data-id="e2" data-answer="0" data-why="EnumType.STRING garde le nom de la constante."><legend>TypeChambre.DOUBLE avec EnumType.STRING est enregistré comme</legend><button type="button" data-i="0">le texte DOUBLE</button><button type="button" data-i="1">le chiffre 1</button><button type="button" data-i="2">une nouvelle table</button><p class="feedback" hidden></p></fieldset>

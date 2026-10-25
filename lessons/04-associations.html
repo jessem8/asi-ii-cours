@@ -17,7 +17,7 @@
   <main id="content">
 
 <h1>4. Associations</h1>
-<p class="lede">Le sujet dit qui est le fils. Le fils reçoit <code>mappedBy</code> et <code>@JsonIgnore</code>. L'autre classe garde le lien.</p>
+<p class="lede">Deux questions : combien d’objets sont liés ? Et quel côté possède la relation ? <code>mappedBy</code> indique le côté inverse, pas systématiquement le « fils ».</p>
 <p class="cite">Associations. Dans le compte rendu : Foyer est le fils de Universite. Etudiant est le fils de Reservation.</p>
 <p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
 <h2>Les quatre cas du cours</h2>
@@ -30,7 +30,7 @@ private Foyer foyer;
 @OneToOne(mappedBy = "foyer")
 @JsonIgnore
 private Universite universite;</code></pre>
-<p><strong>Un vers plusieurs, dans les deux sens.</strong> Bloc est le fils. Il a <code>@ManyToOne</code>. La clé étrangère est dans la table <code>bloc</code>. Pas de table de jointure.</p>
+<p><strong>Un vers plusieurs, dans les deux sens.</strong> Bloc est le côté « plusieurs » et possède la clé étrangère avec <code>@ManyToOne</code>. C’est la collection de <code>Foyer</code> qui déclare <code>mappedBy</code>. Pas de table de jointure.</p>
 <pre><code data-lang="java">// Foyer
 @OneToMany(mappedBy = "foyer")
 @JsonIgnore
@@ -52,8 +52,8 @@ private Set&lt;Etudiant&gt; etudiants;
 @ManyToMany(mappedBy = "etudiants")
 @JsonIgnore
 private Set&lt;Reservation&gt; reservations;</code></pre>
-<p>L'import de <code>@JsonIgnore</code> est <code>com.fasterxml.jackson.annotation.JsonIgnore</code>. Sans lui, un GET ne finit jamais : le JSON tourne en boucle.</p>
-<p>Si tu changes une association alors que les tables existent déjà, supprime la base dans phpMyAdmin. <code>update</code> ajoute des colonnes. Il n'enlève pas les anciennes.</p>
+<p><code>@JsonIgnore</code> vient de <code>com.fasterxml.jackson.annotation.JsonIgnore</code>. Dans les exemples de ce TP, il empêche Jackson de parcourir les associations dans les deux sens. Il ne détermine pas le côté propriétaire JPA.</p>
+<p><code>ddl-auto=update</code> ne supprime pas automatiquement les anciennes colonnes. Sur une base de TP jetable, tu peux recréer le schéma après avoir sauvegardé ce que tu veux garder. Ne supprime jamais une base contenant des données utiles.</p>
 <div class="plate">
   <h2>Essaie toi-même</h2>
   <p>Choisis un exemple du cours, ou change les noms. Lis les deux classes et le nom de la table.</p>
@@ -95,7 +95,7 @@ private Set&lt;Reservation&gt; reservations;</code></pre>
   <div id="assoc-out"></div>
 </div>
 <fieldset class="quiz" data-id="a1" data-answer="1" data-why="Foyer est le fils. Universite garde la clé foyer_id_foyer."><legend>Universite 1—1 Foyer, Foyer est le fils. La clé étrangère est</legend><button type="button" data-i="0">dans la table foyer</button><button type="button" data-i="1">dans la table universite</button><button type="button" data-i="2">dans une table de jointure</button><p class="feedback" hidden></p></fieldset>
-<fieldset class="quiz" data-id="a2" data-answer="0" data-why="Le fils Bloc a @ManyToOne. Foyer a mappedBy."><legend>Foyer 1—* Bloc, Bloc est le fils. Sur Bloc tu écris</legend><button type="button" data-i="0">@ManyToOne Foyer</button><button type="button" data-i="1">@OneToMany sans mappedBy</button><button type="button" data-i="2">rien, le fils n'a pas de champ</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="a2" data-answer="0" data-why="Bloc porte @ManyToOne et la clé étrangère ; la collection de Foyer porte mappedBy."><legend>Foyer 1—* Bloc, Bloc est le fils. Sur Bloc tu écris</legend><button type="button" data-i="0">@ManyToOne Foyer</button><button type="button" data-i="1">@OneToMany sans mappedBy</button><button type="button" data-i="2">rien, le fils n'a pas de champ</button><p class="feedback" hidden></p></fieldset>
 <fieldset class="quiz" data-id="a3" data-answer="2" data-why="Sans mappedBy, @OneToMany crée chambre_reservations."><legend>Chambre a une liste de Reservation, et Reservation n'a pas de champ retour. Hibernate crée</legend><button type="button" data-i="0">une clé dans la table chambre</button><button type="button" data-i="1">une clé dans la table reservation</button><button type="button" data-i="2">la table chambre_reservations</button><p class="feedback" hidden></p></fieldset>
 <fieldset class="quiz" data-id="a4" data-answer="1" data-why="@JsonIgnore va sur le fils, le côté mappedBy."><legend>Reservation *—* Etudiant, Etudiant est le fils. @JsonIgnore est sur</legend><button type="button" data-i="0">Reservation</button><button type="button" data-i="1">Etudiant</button><button type="button" data-i="2">le repository</button><p class="feedback" hidden></p></fieldset>
 <p><a class="btn" href="05-jparepository.html">Leçon suivante : JpaRepository</a></p>
