@@ -121,19 +121,26 @@
       tables.push(join + " (" + ownerCol + ", " + manyCol + " primary key)");
       note = "OneToMany sans mappedBy crée une table de jointure. La colonne de la liste est la clé primaire : un " + many + " appartient à un seul " + one + ".";
     } else if (kind === "mto") {
+      // In N:1, the class that holds @ManyToOne is the "N" side.
+      // If both sides are shown, the other class has the inverse collection.
       const many = dir === "uni-b" ? b : a;
       const one = many === a ? b : a;
       const field = camel(one);
+      const manyCollection = plural(camel(many));
       const fk = field + "_" + snake(one === a ? ida : idb);
+      const ownerCode = "@ManyToOne\nprivate " + one + " " + field + ";";
+      const inverseCode = "@OneToMany(mappedBy = \"" + field + "\")\n@JsonIgnore\nprivate Set<" + many + "> " + manyCollection + ";";
       if (many === a) {
-        codeA = "@ManyToOne\nprivate " + one + " " + field + ";";
-        codeB = "/* pas de liste. */";
+        codeA = ownerCode;
+        codeB = dir === "bi" ? inverseCode : "/* pas de liste. */";
       } else {
-        codeB = "@ManyToOne\nprivate " + one + " " + field + ";";
-        codeA = "/* pas de liste. */";
+        codeB = ownerCode;
+        codeA = dir === "bi" ? inverseCode : "/* pas de liste. */";
       }
       tables.push(snake(many) + "." + fk + "  →  " + snake(one));
-      note = "ManyToOne dans un seul sens. Une clé étrangère sur la table du côté plusieurs. Pas de table de jointure.";
+      note = dir === "bi"
+        ? "N:1 dans les deux sens : @ManyToOne possède la clé étrangère. La collection du côté 1 a mappedBy et, dans cet exemple, @JsonIgnore."
+        : "N:1 dans un seul sens : seul le côté plusieurs a un champ Java. La clé étrangère reste dans sa table.";
     } else if (kind === "mtm" && dir === "bi") {
       const owner = fils === "a" ? b : a;
       const child = owner === a ? b : a;
