@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2 — Clinique</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="lab-2-clinique.html" aria-current="page">Labo 2 Clinique</a><a href="lab-3-projets.html">Labo 3 Projets</a><a href="lab-4-evenements.html">Labo 4 Événements</a><a href="lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Lab 2 — Clinique</h1>
+<p class="lede">Un vers plusieurs dans les deux sens, et plusieurs vers plusieurs dans un seul sens. Le boolean disponible doit être dans le JSON.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<div class="plate"><h2>Énoncé</h2><p>Travail à faire. Même socle technique. Base cliniquedb, port 8089, context path /clinique.</p><p></p><p>Clinique (idClinique Long généré, nom, adresse).</p><p>Medecin (idMedecin Long généré, nom, prenom, specialite enum Specialite { CARDIO, PNEUMO, DERMATO }, disponible boolean).</p><p>Patient (idPatient Long généré, nom, prenom, cin Long).</p><p></p><p>Une clinique emploie plusieurs médecins. Bidirectionnelle. Le médecin est le fils.</p><p>Un médecin suit plusieurs patients, un patient peut être suivi par plusieurs médecins. Unidirectionnelle, seulement depuis Medecin.</p><p></p><p>Repository, service, controller, Postman.</p></div>
+<svg class="diagram" viewBox="0 0 680 180" role="img" aria-label="Clinique"><rect x="20" y="40" width="160" height="70" fill="#f6fafc" stroke="#143652"/><text x="100" y="62" text-anchor="middle" font-size="14" fill="#17212b">Clinique</text><rect x="250" y="40" width="160" height="100" fill="#f6fafc" stroke="#143652"/><text x="330" y="62" text-anchor="middle" font-size="14" fill="#17212b">Medecin</text><rect x="480" y="40" width="150" height="70" fill="#f6fafc" stroke="#143652"/><text x="555" y="62" text-anchor="middle" font-size="14" fill="#17212b">Patient</text></svg><p>1 — * dans les deux sens. * — * seulement depuis Medecin. Pas de champ sur Patient.</p>
+<h2>Checklist</h2>
+<label class="check"><input type="checkbox" data-step="s0"> Projet, properties, premier run vide.</label><label class="check"><input type="checkbox" data-step="s1"> Enum et trois entités. Le boolean disponible est un boolean primitif, pas Boolean.</label><label class="check"><input type="checkbox" data-step="s2"> Associations. Patient n'a pas de collection.</label><label class="check"><input type="checkbox" data-step="s3"> Repositories, services, controllers.</label><label class="check"><input type="checkbox" data-step="s4"> POST medecin avec disponible true ou false. Sans la ligne Jackson, un boolean absent répond 400.</label>
+<h2>Indices</h2>
+<p><button type="button" data-reveal data-show="Indice 1" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-cliniqueh0">Indice 1</button></p><div id="ex2-cliniqueh0" hidden><p>Pas de mappedBy sur patients. @ManyToMany Set Patient patients sur Medecin seulement. Cela crée une join table.</p></div><p><button type="button" data-reveal data-show="Indice 2" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-cliniqueh1">Indice 2</button></p><div id="ex2-cliniqueh1" hidden><p>Medecin est le fils de Clinique : @ManyToOne Clinique clinique, et @JsonIgnore sur la collection de Clinique.</p></div>
+<h2>Tables attendues</h2>
+<ul>
+<li>clinique (id_clinique, nom, adresse)</li>
+<li>medecin (id_medecin, nom, prenom, specialite, disponible, clinique_id_clinique)</li>
+<li>patient (id_patient, nom, prenom, cin)</li>
+<li>medecin_patients (medecin_id_medecin, patients_id_patient)</li>
+</ul><p class="cite">MySQL n'était pas démarré quand ces pages ont été écrites. Cette liste suit la règle déjà vue dans tpfoyerdb : idChambre devient id_chambre, typeC devient typec. Les cinq projets compilent avec le JDK 21.</p>
+<h2>Postman</h2>
+<h3>Clinique</h3><p><code>POST http://localhost:8089/clinique/clinique/add-clinique</code></p><pre><code data-lang="json">{
+  "idClinique": null,
+  "nom": "Exemple",
+  "adresse": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/clinique/clinique/retrieve-all-cliniques</code>, GET avec un id, PUT <code>modify-clinique</code> avec l'id rempli, DELETE <code>remove-clinique/{id}</code>.</p>
+<h3>Medecin</h3><p><code>POST http://localhost:8089/clinique/medecin/add-medecin</code></p><pre><code data-lang="json">{
+  "idMedecin": null,
+  "nom": "Exemple",
+  "prenom": "Exemple",
+  "specialite": "CARDIO",
+  "disponible": true,
+  "clinique": null,
+  "patients": []
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/clinique/medecin/retrieve-all-medecins</code>, GET avec un id, PUT <code>modify-medecin</code> avec l'id rempli, DELETE <code>remove-medecin/{id}</code>.</p>
+<h3>Patient</h3><p><code>POST http://localhost:8089/clinique/patient/add-patient</code></p><pre><code data-lang="json">{
+  "idPatient": null,
+  "nom": "Exemple",
+  "prenom": "Exemple",
+  "cin": 1
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/clinique/patient/retrieve-all-patients</code>, GET avec un id, PUT <code>modify-patient</code> avec l'id rempli, DELETE <code>remove-patient/{id}</code>.</p>
+<h2>Solution</h2>
+<p>Même forme que le projet du cours. Tu tapes la version ci-dessous, avec le port 8089.</p>
+<p><button type="button" data-reveal data-show="student-application.properties" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-studentapplicationproperties">student-application.properties</button></p><div id="ex2-clinique-studentapplicationproperties" hidden><pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/cliniquedb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;the MAMP MySQL password&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/clinique</code></pre></div>
+<p><button type="button" data-reveal data-show="Specialite.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-Specialitejava">Specialite.java</button></p><div id="ex2-clinique-Specialitejava" hidden><pre><code data-lang="java">package tn.esprit.clinique.entity;
+
+public enum Specialite {
+    CARDIO, PNEUMO, DERMATO
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Clinique.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-Cliniquejava">Clinique.java</button></p><div id="ex2-clinique-Cliniquejava" hidden><pre><code data-lang="java">package tn.esprit.clinique.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Clinique {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idClinique;
+    private String nom;
+    private String adresse;
+    @OneToMany(mappedBy = "clinique")
+    @JsonIgnore
+    private Set&lt;Medecin&gt; medecins;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Medecin.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-Medecinjava">Medecin.java</button></p><div id="ex2-clinique-Medecinjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Medecin {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idMedecin;
+    private String nom;
+    private String prenom;
+    @Enumerated(EnumType.STRING)
+    private Specialite specialite;
+    private boolean disponible;
+    @ManyToOne
+    private Clinique clinique;
+    @ManyToMany
+    private Set&lt;Patient&gt; patients;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Patient.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-Patientjava">Patient.java</button></p><div id="ex2-clinique-Patientjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Patient {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idPatient;
+    private String nom;
+    private String prenom;
+    private Long cin;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CliniqueRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-CliniqueRepositoryjava">CliniqueRepository.java</button></p><div id="ex2-clinique-CliniqueRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.clinique.entity.Clinique;
+
+@Repository
+public interface CliniqueRepository extends JpaRepository&lt;Clinique, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="MedecinRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-MedecinRepositoryjava">MedecinRepository.java</button></p><div id="ex2-clinique-MedecinRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.clinique.entity.Medecin;
+
+@Repository
+public interface MedecinRepository extends JpaRepository&lt;Medecin, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="PatientRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-PatientRepositoryjava">PatientRepository.java</button></p><div id="ex2-clinique-PatientRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.clinique.entity.Patient;
+
+@Repository
+public interface PatientRepository extends JpaRepository&lt;Patient, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ICliniqueService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-ICliniqueServicejava">ICliniqueService.java</button></p><div id="ex2-clinique-ICliniqueServicejava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import tn.esprit.clinique.entity.Clinique;
+
+import java.util.List;
+
+public interface ICliniqueService {
+    List&lt;Clinique&gt; retrieveAllCliniques();
+    Clinique retrieveClinique(Long cliniqueId);
+    Clinique addClinique(Clinique clinique);
+    void removeClinique(Long cliniqueId);
+    Clinique modifyClinique(Clinique clinique);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IMedecinService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-IMedecinServicejava">IMedecinService.java</button></p><div id="ex2-clinique-IMedecinServicejava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import tn.esprit.clinique.entity.Medecin;
+
+import java.util.List;
+
+public interface IMedecinService {
+    List&lt;Medecin&gt; retrieveAllMedecins();
+    Medecin retrieveMedecin(Long medecinId);
+    Medecin addMedecin(Medecin medecin);
+    void removeMedecin(Long medecinId);
+    Medecin modifyMedecin(Medecin medecin);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IPatientService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-IPatientServicejava">IPatientService.java</button></p><div id="ex2-clinique-IPatientServicejava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import tn.esprit.clinique.entity.Patient;
+
+import java.util.List;
+
+public interface IPatientService {
+    List&lt;Patient&gt; retrieveAllPatients();
+    Patient retrievePatient(Long patientId);
+    Patient addPatient(Patient patient);
+    void removePatient(Long patientId);
+    Patient modifyPatient(Patient patient);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CliniqueServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-CliniqueServiceImpljava">CliniqueServiceImpl.java</button></p><div id="ex2-clinique-CliniqueServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.clinique.entity.Clinique;
+import tn.esprit.clinique.repository.CliniqueRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class CliniqueServiceImpl implements ICliniqueService {
+
+    CliniqueRepository cliniqueRepository;
+
+    public List&lt;Clinique&gt; retrieveAllCliniques() {
+        return cliniqueRepository.findAll();
+    }
+
+    public Clinique retrieveClinique(Long cliniqueId) {
+        return cliniqueRepository.findById(cliniqueId).get();
+    }
+
+    public Clinique addClinique(Clinique clinique) {
+        return cliniqueRepository.save(clinique);
+    }
+
+    public void removeClinique(Long cliniqueId) {
+        cliniqueRepository.deleteById(cliniqueId);
+    }
+
+    public Clinique modifyClinique(Clinique clinique) {
+        return cliniqueRepository.save(clinique);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="MedecinServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-MedecinServiceImpljava">MedecinServiceImpl.java</button></p><div id="ex2-clinique-MedecinServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.clinique.entity.Medecin;
+import tn.esprit.clinique.repository.MedecinRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class MedecinServiceImpl implements IMedecinService {
+
+    MedecinRepository medecinRepository;
+
+    public List&lt;Medecin&gt; retrieveAllMedecins() {
+        return medecinRepository.findAll();
+    }
+
+    public Medecin retrieveMedecin(Long medecinId) {
+        return medecinRepository.findById(medecinId).get();
+    }
+
+    public Medecin addMedecin(Medecin medecin) {
+        return medecinRepository.save(medecin);
+    }
+
+    public void removeMedecin(Long medecinId) {
+        medecinRepository.deleteById(medecinId);
+    }
+
+    public Medecin modifyMedecin(Medecin medecin) {
+        return medecinRepository.save(medecin);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="PatientServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-PatientServiceImpljava">PatientServiceImpl.java</button></p><div id="ex2-clinique-PatientServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.clinique.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.clinique.entity.Patient;
+import tn.esprit.clinique.repository.PatientRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class PatientServiceImpl implements IPatientService {
+
+    PatientRepository patientRepository;
+
+    public List&lt;Patient&gt; retrieveAllPatients() {
+        return patientRepository.findAll();
+    }
+
+    public Patient retrievePatient(Long patientId) {
+        return patientRepository.findById(patientId).get();
+    }
+
+    public Patient addPatient(Patient patient) {
+        return patientRepository.save(patient);
+    }
+
+    public void removePatient(Long patientId) {
+        patientRepository.deleteById(patientId);
+    }
+
+    public Patient modifyPatient(Patient patient) {
+        return patientRepository.save(patient);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CliniqueRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-CliniqueRestControllerjava">CliniqueRestController.java</button></p><div id="ex2-clinique-CliniqueRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.clinique.entity.Clinique;
+import tn.esprit.clinique.service.ICliniqueService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/clinique")
+public class CliniqueRestController {
+
+    ICliniqueService cliniqueService;
+
+    // http://localhost:8089/clinique/clinique/retrieve-all-cliniques
+    @GetMapping("/retrieve-all-cliniques")
+    public List&lt;Clinique&gt; getCliniques() {
+        return cliniqueService.retrieveAllCliniques();
+    }
+
+    // http://localhost:8089/clinique/clinique/retrieve-clinique/1
+    @GetMapping("/retrieve-clinique/{clinique-id}")
+    public Clinique retrieveClinique(@PathVariable("clinique-id") Long id) {
+        return cliniqueService.retrieveClinique(id);
+    }
+
+    @PostMapping("/add-clinique")
+    public Clinique addClinique(@RequestBody Clinique body) {
+        return cliniqueService.addClinique(body);
+    }
+
+    @DeleteMapping("/remove-clinique/{clinique-id}")
+    public void removeClinique(@PathVariable("clinique-id") Long id) {
+        cliniqueService.removeClinique(id);
+    }
+
+    @PutMapping("/modify-clinique")
+    public Clinique modifyClinique(@RequestBody Clinique body) {
+        return cliniqueService.modifyClinique(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="MedecinRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-MedecinRestControllerjava">MedecinRestController.java</button></p><div id="ex2-clinique-MedecinRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.clinique.entity.Medecin;
+import tn.esprit.clinique.service.IMedecinService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/medecin")
+public class MedecinRestController {
+
+    IMedecinService medecinService;
+
+    // http://localhost:8089/clinique/medecin/retrieve-all-medecins
+    @GetMapping("/retrieve-all-medecins")
+    public List&lt;Medecin&gt; getMedecins() {
+        return medecinService.retrieveAllMedecins();
+    }
+
+    // http://localhost:8089/clinique/medecin/retrieve-medecin/1
+    @GetMapping("/retrieve-medecin/{medecin-id}")
+    public Medecin retrieveMedecin(@PathVariable("medecin-id") Long id) {
+        return medecinService.retrieveMedecin(id);
+    }
+
+    @PostMapping("/add-medecin")
+    public Medecin addMedecin(@RequestBody Medecin body) {
+        return medecinService.addMedecin(body);
+    }
+
+    @DeleteMapping("/remove-medecin/{medecin-id}")
+    public void removeMedecin(@PathVariable("medecin-id") Long id) {
+        medecinService.removeMedecin(id);
+    }
+
+    @PutMapping("/modify-medecin")
+    public Medecin modifyMedecin(@RequestBody Medecin body) {
+        return medecinService.modifyMedecin(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="PatientRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex2-clinique-PatientRestControllerjava">PatientRestController.java</button></p><div id="ex2-clinique-PatientRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.clinique.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.clinique.entity.Patient;
+import tn.esprit.clinique.service.IPatientService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/patient")
+public class PatientRestController {
+
+    IPatientService patientService;
+
+    // http://localhost:8089/clinique/patient/retrieve-all-patients
+    @GetMapping("/retrieve-all-patients")
+    public List&lt;Patient&gt; getPatients() {
+        return patientService.retrieveAllPatients();
+    }
+
+    // http://localhost:8089/clinique/patient/retrieve-patient/1
+    @GetMapping("/retrieve-patient/{patient-id}")
+    public Patient retrievePatient(@PathVariable("patient-id") Long id) {
+        return patientService.retrievePatient(id);
+    }
+
+    @PostMapping("/add-patient")
+    public Patient addPatient(@RequestBody Patient body) {
+        return patientService.addPatient(body);
+    }
+
+    @DeleteMapping("/remove-patient/{patient-id}")
+    public void removePatient(@PathVariable("patient-id") Long id) {
+        patientService.removePatient(id);
+    }
+
+    @PutMapping("/modify-patient")
+    public Patient modifyPatient(@RequestBody Patient body) {
+        return patientService.modifyPatient(body);
+    }
+}</code></pre></div>
+<h2>Grille</h2>
+<label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
+<label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
+<label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
+<label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
+<label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
+<fieldset class="quiz" data-id="ex2-cliniqueq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

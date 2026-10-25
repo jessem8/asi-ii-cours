@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Spring Boot et Maven</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html" aria-current="page">1. Spring Boot et Maven</a><a href="02-entites.html">2. Entités</a><a href="03-lombok.html">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html">5. JpaRepository</a><a href="06-injection.html">6. Injection</a><a href="07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>1. Spring Boot et Maven</h1>
+<p class="lede">Cette leçon sert à créer le projet et à le lancer une fois, avant d'écrire une entité.</p>
+<p class="cite">Introduction, puis Spring Boot et Maven. Les slides parlent de JDK 17 et d'une vieille version de Boot. Dans IntelliJ aujourd'hui, tu prends Java 21 et Spring Boot 4. C'est normal.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<h2>À quoi sert Spring Boot</h2>
+<p>Sans Boot, tu installes Tomcat toi-même et tu ajoutes les jars un par un. Avec Boot, le projet démarre tout seul quand tu lances la classe principale. Le serveur est dedans.</p>
+<h2>Créer le projet dans IntelliJ</h2>
+<ol>
+  <li>File, New, Project, Spring Boot.</li>
+  <li>Maven, Java, Jar, JDK 21.</li>
+  <li>Group : <code>tn.esprit</code>. Le nom du projet est celui du sujet.</li>
+  <li>Coche Spring Web, Spring Data JPA, MySQL Driver, Lombok.</li>
+  <li>Après la création : File, Project Structure, SDK 21.</li>
+</ol>
+<p>Spring Web écrit <code>spring-boot-starter-webmvc</code> dans le pom. Tu ne changes pas ce nom.</p>
+<h2>Le fichier application.properties</h2>
+<p>MAMP doit être démarré, MySQL vert, avant de lancer l'application.</p>
+<pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/labdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;le mot de passe MySQL de MAMP&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/lab</code></pre>
+<p><code>createDatabaseIfNotExist=true</code> crée la base. <code>update</code> crée les tables manquantes. Il n'efface pas les anciennes colonnes. <code>show-sql=true</code> affiche le SQL dans la console.</p>
+<p>Le premier lancement, sans entité, est bon quand tu lis <code>Started</code> et Tomcat sur le port 8089.</p>
+<fieldset class="quiz" data-id="b1" data-answer="1" data-why="La case Spring Web, avec Boot 4, écrit spring-boot-starter-webmvc."><legend>Après avoir coché Spring Web, le pom contient</legend><button type="button" data-i="0">spring-boot-starter-webmvc</button><button type="button" data-i="1">une installation manuelle de Tomcat</button><button type="button" data-i="2">rien, il faut ajouter le jar toi-même</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="b2" data-answer="0" data-why="Le projet doit utiliser le JDK 21, même si une autre version est installée."><legend>Quel JDK le projet doit utiliser ?</legend><button type="button" data-i="0">JDK 21, dans Project Structure</button><button type="button" data-i="1">JDK 17, parce que le slide le dit</button><button type="button" data-i="2">la version affichée par java -version</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="b3" data-answer="2" data-why="Connection refused veut dire que MySQL n'écoute pas. Démarre MAMP."><legend>La console dit Communications link failure, Connection refused. Tu</legend><button type="button" data-i="0">changes le port 8089 en 3306</button><button type="button" data-i="1">supprimes la dépendance MySQL</button><button type="button" data-i="2">démarres MAMP et tu relances</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="02-entites.html">Leçon suivante : Entités</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

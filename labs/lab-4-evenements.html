@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 4 — Événements</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="lab-2-clinique.html">Labo 2 Clinique</a><a href="lab-3-projets.html">Labo 3 Projets</a><a href="lab-4-evenements.html" aria-current="page">Labo 4 Événements</a><a href="lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Lab 4 — Événements</h1>
+<p class="lede">Plusieurs vers un dans un seul sens, et plusieurs vers plusieurs dans les deux sens. Pas de table de jointure pour le club.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<div class="plate"><h2>Énoncé</h2><p>Travail à faire. Base eventsdb, port 8089, context path /events.</p><p></p><p>Club (idClub Long généré, nomClub, adresse).</p><p>Evenement (idEvenement Long généré, titre, dateEvent Date).</p><p>Participant (idParticipant Long généré, nom, prenom).</p><p></p><p>Un événement appartient à un club. Unidirectionnelle, depuis Evenement. Club n'a pas de collection.</p><p>Un événement accueille plusieurs participants, un participant inscrit plusieurs événements. Bidirectionnelle. Le participant est le fils.</p></div>
+<svg class="diagram" viewBox="0 0 680 180" role="img" aria-label="Events"><rect x="20" y="40" width="140" height="70" fill="#f6fafc" stroke="#143652"/><text x="90" y="62" text-anchor="middle" font-size="14" fill="#17212b">Club</text><rect x="230" y="30" width="180" height="100" fill="#f6fafc" stroke="#143652"/><text x="320" y="52" text-anchor="middle" font-size="14" fill="#17212b">Evenement</text><rect x="480" y="40" width="160" height="70" fill="#f6fafc" stroke="#143652"/><text x="560" y="62" text-anchor="middle" font-size="14" fill="#17212b">Participant</text></svg><p>* — 1 de Evenement vers Club, sans retour. * — * , Participant est le fils.</p>
+<h2>Checklist</h2>
+<label class="check"><input type="checkbox" data-step="s0"> Entités et la date. Pas d'enum dans ce sujet.</label><label class="check"><input type="checkbox" data-step="s1"> @ManyToOne Club club sur Evenement. Rien sur Club.</label><label class="check"><input type="checkbox" data-step="s2"> ManyToMany. Evenement possède participants. Participant est mappedBy et @JsonIgnore.</label><label class="check"><input type="checkbox" data-step="s3"> Vérifier qu'il n'existe pas de join table club_evenements.</label>
+<h2>Indices</h2>
+<p><button type="button" data-reveal data-show="Indice 1" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenementsh0">Indice 1</button></p><div id="ex4-evenementsh0" hidden><p>Une flèche many-to-one seule ne crée pas de join table. La colonne est club_id_club.</p></div><p><button type="button" data-reveal data-show="Indice 2" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenementsh1">Indice 2</button></p><div id="ex4-evenementsh1" hidden><p>Le nom de la join table commence par l'entité propriétaire : evenement_participants.</p></div>
+<h2>Tables attendues</h2>
+<ul>
+<li>club (id_club, nom_club, adresse)</li>
+<li>evenement (id_evenement, titre, date_event, club_id_club)</li>
+<li>participant (id_participant, nom, prenom)</li>
+<li>evenement_participants (evenements_id_evenement, participants_id_participant)</li>
+</ul><p class="cite">MySQL n'était pas démarré quand ces pages ont été écrites. Cette liste suit la règle déjà vue dans tpfoyerdb : idChambre devient id_chambre, typeC devient typec. Les cinq projets compilent avec le JDK 21.</p>
+<h2>Postman</h2>
+<h3>Club</h3><p><code>POST http://localhost:8089/events/club/add-club</code></p><pre><code data-lang="json">{
+  "idClub": null,
+  "nomClub": "Exemple",
+  "adresse": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/events/club/retrieve-all-clubs</code>, GET avec un id, PUT <code>modify-club</code> avec l'id rempli, DELETE <code>remove-club/{id}</code>.</p>
+<h3>Evenement</h3><p><code>POST http://localhost:8089/events/evenement/add-evenement</code></p><pre><code data-lang="json">{
+  "idEvenement": null,
+  "titre": "Exemple",
+  "dateEvent": "2026-10-26",
+  "club": null,
+  "participants": []
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/events/evenement/retrieve-all-evenements</code>, GET avec un id, PUT <code>modify-evenement</code> avec l'id rempli, DELETE <code>remove-evenement/{id}</code>.</p>
+<h3>Participant</h3><p><code>POST http://localhost:8089/events/participant/add-participant</code></p><pre><code data-lang="json">{
+  "idParticipant": null,
+  "nom": "Exemple",
+  "prenom": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/events/participant/retrieve-all-participants</code>, GET avec un id, PUT <code>modify-participant</code> avec l'id rempli, DELETE <code>remove-participant/{id}</code>.</p>
+<h2>Solution</h2>
+<p>Même forme que le projet du cours. Tu tapes la version ci-dessous, avec le port 8089.</p>
+<p><button type="button" data-reveal data-show="student-application.properties" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-studentapplicationproperties">student-application.properties</button></p><div id="ex4-evenements-studentapplicationproperties" hidden><pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/eventsdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;the MAMP MySQL password&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/events</code></pre></div>
+<p><button type="button" data-reveal data-show="Club.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-Clubjava">Club.java</button></p><div id="ex4-evenements-Clubjava" hidden><pre><code data-lang="java">package tn.esprit.events.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Club {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idClub;
+    private String nomClub;
+    private String adresse;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Evenement.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-Evenementjava">Evenement.java</button></p><div id="ex4-evenements-Evenementjava" hidden><pre><code data-lang="java">package tn.esprit.events.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Date;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Evenement {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idEvenement;
+    private String titre;
+    @Temporal(TemporalType.DATE)
+    private Date dateEvent;
+    @ManyToOne
+    private Club club;
+    @ManyToMany
+    private Set&lt;Participant&gt; participants;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Participant.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-Participantjava">Participant.java</button></p><div id="ex4-evenements-Participantjava" hidden><pre><code data-lang="java">package tn.esprit.events.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Participant {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idParticipant;
+    private String nom;
+    private String prenom;
+    @ManyToMany(mappedBy = "participants")
+    @JsonIgnore
+    private Set&lt;Evenement&gt; evenements;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ClubRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ClubRepositoryjava">ClubRepository.java</button></p><div id="ex4-evenements-ClubRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.events.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.events.entity.Club;
+
+@Repository
+public interface ClubRepository extends JpaRepository&lt;Club, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EvenementRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-EvenementRepositoryjava">EvenementRepository.java</button></p><div id="ex4-evenements-EvenementRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.events.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.events.entity.Evenement;
+
+@Repository
+public interface EvenementRepository extends JpaRepository&lt;Evenement, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ParticipantRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ParticipantRepositoryjava">ParticipantRepository.java</button></p><div id="ex4-evenements-ParticipantRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.events.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.events.entity.Participant;
+
+@Repository
+public interface ParticipantRepository extends JpaRepository&lt;Participant, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IClubService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-IClubServicejava">IClubService.java</button></p><div id="ex4-evenements-IClubServicejava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import tn.esprit.events.entity.Club;
+
+import java.util.List;
+
+public interface IClubService {
+    List&lt;Club&gt; retrieveAllClubs();
+    Club retrieveClub(Long clubId);
+    Club addClub(Club club);
+    void removeClub(Long clubId);
+    Club modifyClub(Club club);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IEvenementService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-IEvenementServicejava">IEvenementService.java</button></p><div id="ex4-evenements-IEvenementServicejava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import tn.esprit.events.entity.Evenement;
+
+import java.util.List;
+
+public interface IEvenementService {
+    List&lt;Evenement&gt; retrieveAllEvenements();
+    Evenement retrieveEvenement(Long evenementId);
+    Evenement addEvenement(Evenement evenement);
+    void removeEvenement(Long evenementId);
+    Evenement modifyEvenement(Evenement evenement);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IParticipantService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-IParticipantServicejava">IParticipantService.java</button></p><div id="ex4-evenements-IParticipantServicejava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import tn.esprit.events.entity.Participant;
+
+import java.util.List;
+
+public interface IParticipantService {
+    List&lt;Participant&gt; retrieveAllParticipants();
+    Participant retrieveParticipant(Long participantId);
+    Participant addParticipant(Participant participant);
+    void removeParticipant(Long participantId);
+    Participant modifyParticipant(Participant participant);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ClubServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ClubServiceImpljava">ClubServiceImpl.java</button></p><div id="ex4-evenements-ClubServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.events.entity.Club;
+import tn.esprit.events.repository.ClubRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class ClubServiceImpl implements IClubService {
+
+    ClubRepository clubRepository;
+
+    public List&lt;Club&gt; retrieveAllClubs() {
+        return clubRepository.findAll();
+    }
+
+    public Club retrieveClub(Long clubId) {
+        return clubRepository.findById(clubId).get();
+    }
+
+    public Club addClub(Club club) {
+        return clubRepository.save(club);
+    }
+
+    public void removeClub(Long clubId) {
+        clubRepository.deleteById(clubId);
+    }
+
+    public Club modifyClub(Club club) {
+        return clubRepository.save(club);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EvenementServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-EvenementServiceImpljava">EvenementServiceImpl.java</button></p><div id="ex4-evenements-EvenementServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.events.entity.Evenement;
+import tn.esprit.events.repository.EvenementRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class EvenementServiceImpl implements IEvenementService {
+
+    EvenementRepository evenementRepository;
+
+    public List&lt;Evenement&gt; retrieveAllEvenements() {
+        return evenementRepository.findAll();
+    }
+
+    public Evenement retrieveEvenement(Long evenementId) {
+        return evenementRepository.findById(evenementId).get();
+    }
+
+    public Evenement addEvenement(Evenement evenement) {
+        return evenementRepository.save(evenement);
+    }
+
+    public void removeEvenement(Long evenementId) {
+        evenementRepository.deleteById(evenementId);
+    }
+
+    public Evenement modifyEvenement(Evenement evenement) {
+        return evenementRepository.save(evenement);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ParticipantServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ParticipantServiceImpljava">ParticipantServiceImpl.java</button></p><div id="ex4-evenements-ParticipantServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.events.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.events.entity.Participant;
+import tn.esprit.events.repository.ParticipantRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class ParticipantServiceImpl implements IParticipantService {
+
+    ParticipantRepository participantRepository;
+
+    public List&lt;Participant&gt; retrieveAllParticipants() {
+        return participantRepository.findAll();
+    }
+
+    public Participant retrieveParticipant(Long participantId) {
+        return participantRepository.findById(participantId).get();
+    }
+
+    public Participant addParticipant(Participant participant) {
+        return participantRepository.save(participant);
+    }
+
+    public void removeParticipant(Long participantId) {
+        participantRepository.deleteById(participantId);
+    }
+
+    public Participant modifyParticipant(Participant participant) {
+        return participantRepository.save(participant);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ClubRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ClubRestControllerjava">ClubRestController.java</button></p><div id="ex4-evenements-ClubRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.events.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.events.entity.Club;
+import tn.esprit.events.service.IClubService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/club")
+public class ClubRestController {
+
+    IClubService clubService;
+
+    // http://localhost:8089/events/club/retrieve-all-clubs
+    @GetMapping("/retrieve-all-clubs")
+    public List&lt;Club&gt; getClubs() {
+        return clubService.retrieveAllClubs();
+    }
+
+    // http://localhost:8089/events/club/retrieve-club/1
+    @GetMapping("/retrieve-club/{club-id}")
+    public Club retrieveClub(@PathVariable("club-id") Long id) {
+        return clubService.retrieveClub(id);
+    }
+
+    @PostMapping("/add-club")
+    public Club addClub(@RequestBody Club body) {
+        return clubService.addClub(body);
+    }
+
+    @DeleteMapping("/remove-club/{club-id}")
+    public void removeClub(@PathVariable("club-id") Long id) {
+        clubService.removeClub(id);
+    }
+
+    @PutMapping("/modify-club")
+    public Club modifyClub(@RequestBody Club body) {
+        return clubService.modifyClub(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EvenementRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-EvenementRestControllerjava">EvenementRestController.java</button></p><div id="ex4-evenements-EvenementRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.events.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.events.entity.Evenement;
+import tn.esprit.events.service.IEvenementService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/evenement")
+public class EvenementRestController {
+
+    IEvenementService evenementService;
+
+    // http://localhost:8089/events/evenement/retrieve-all-evenements
+    @GetMapping("/retrieve-all-evenements")
+    public List&lt;Evenement&gt; getEvenements() {
+        return evenementService.retrieveAllEvenements();
+    }
+
+    // http://localhost:8089/events/evenement/retrieve-evenement/1
+    @GetMapping("/retrieve-evenement/{evenement-id}")
+    public Evenement retrieveEvenement(@PathVariable("evenement-id") Long id) {
+        return evenementService.retrieveEvenement(id);
+    }
+
+    @PostMapping("/add-evenement")
+    public Evenement addEvenement(@RequestBody Evenement body) {
+        return evenementService.addEvenement(body);
+    }
+
+    @DeleteMapping("/remove-evenement/{evenement-id}")
+    public void removeEvenement(@PathVariable("evenement-id") Long id) {
+        evenementService.removeEvenement(id);
+    }
+
+    @PutMapping("/modify-evenement")
+    public Evenement modifyEvenement(@RequestBody Evenement body) {
+        return evenementService.modifyEvenement(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ParticipantRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex4-evenements-ParticipantRestControllerjava">ParticipantRestController.java</button></p><div id="ex4-evenements-ParticipantRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.events.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.events.entity.Participant;
+import tn.esprit.events.service.IParticipantService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/participant")
+public class ParticipantRestController {
+
+    IParticipantService participantService;
+
+    // http://localhost:8089/events/participant/retrieve-all-participants
+    @GetMapping("/retrieve-all-participants")
+    public List&lt;Participant&gt; getParticipants() {
+        return participantService.retrieveAllParticipants();
+    }
+
+    // http://localhost:8089/events/participant/retrieve-participant/1
+    @GetMapping("/retrieve-participant/{participant-id}")
+    public Participant retrieveParticipant(@PathVariable("participant-id") Long id) {
+        return participantService.retrieveParticipant(id);
+    }
+
+    @PostMapping("/add-participant")
+    public Participant addParticipant(@RequestBody Participant body) {
+        return participantService.addParticipant(body);
+    }
+
+    @DeleteMapping("/remove-participant/{participant-id}")
+    public void removeParticipant(@PathVariable("participant-id") Long id) {
+        participantService.removeParticipant(id);
+    }
+
+    @PutMapping("/modify-participant")
+    public Participant modifyParticipant(@RequestBody Participant body) {
+        return participantService.modifyParticipant(body);
+    }
+}</code></pre></div>
+<h2>Grille</h2>
+<label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
+<label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
+<label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
+<label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
+<label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
+<fieldset class="quiz" data-id="ex4-evenementsq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

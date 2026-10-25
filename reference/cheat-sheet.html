@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="battle-plan.html">Plan des 60 minutes</a><a href="cheat-sheet.html" aria-current="page">Fiche</a><a href="shortcuts.html">Raccourcis</a><a href="flashcards.html">Cartes</a><a href="error-doctor.html">Erreurs</a><a href="glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Fiche</h1>
+<p class="lede">Les fichiers que tu tapes demain. La case cherche un mot. La touche / met le curseur dedans.</p>
+<p><label>Chercher <input class="search" data-finder type="search" placeholder="mappedBy, port, Postman"></label></p>
+<section class="plate" data-find="properties port base jackson">
+  <h2>application.properties</h2>
+  <pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/labdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;le mot de passe MySQL de MAMP&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/lab</code></pre>
+  <p>Change <code>labdb</code> et <code>/lab</code> selon le sujet. Le mot de passe est celui de MySQL dans MAMP. Le slide avec un mot de passe vide ne marche pas ici.</p>
+</section>
+<section class="plate" data-find="entité lombok id enum">
+  <h2>Entité</h2>
+  <pre><code data-lang="java">@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Livre {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idLivre;
+    private String titre;
+}</code></pre>
+  <p>Pas de <code>@Data</code>. Un id String a <code>@Id</code> et pas de <code>@GeneratedValue</code>.</p>
+</section>
+<section class="plate" data-find="association fils mappedby jsonignore">
+  <h2>Association</h2>
+  <p>Le fils a <code>mappedBy</code> et <code>@JsonIgnore</code>.</p>
+  <pre><code data-lang="java">// Bibliotheque
+@OneToMany(mappedBy = "bibliotheque")
+@JsonIgnore
+private Set&lt;Livre&gt; livres;
+
+// Livre, le fils
+@ManyToOne
+private Bibliotheque bibliotheque;</code></pre>
+  <p><code>idChambre</code> devient <code>id_chambre</code>. <code>typeC</code> devient <code>typec</code>.</p>
+</section>
+<section class="plate" data-find="repository jparepository">
+  <h2>Repository</h2>
+  <pre><code data-lang="java">@Repository
+public interface LivreRepository extends JpaRepository&lt;Livre, Long&gt; {
+}</code></pre>
+</section>
+<section class="plate" data-find="service injection">
+  <h2>Service</h2>
+  <pre><code data-lang="java">@Service
+@AllArgsConstructor
+public class LivreServiceImpl implements ILivreService {
+    LivreRepository livreRepository;
+
+    public List&lt;Livre&gt; retrieveAllLivres() {
+        return livreRepository.findAll();
+    }
+
+    public Livre retrieveLivre(Long livreId) {
+        return livreRepository.findById(livreId).get();
+    }
+
+    public Livre addLivre(Livre livre) {
+        return livreRepository.save(livre);
+    }
+
+    public void removeLivre(Long livreId) {
+        livreRepository.deleteById(livreId);
+    }
+
+    public Livre modifyLivre(Livre livre) {
+        return livreRepository.save(livre);
+    }
+}</code></pre>
+</section>
+<section class="plate" data-find="controller rest postman">
+  <h2>Controller</h2>
+  <pre><code data-lang="java">@RestController
+@AllArgsConstructor
+@RequestMapping("/livre")
+public class LivreRestController {
+    ILivreService livreService;
+
+    @GetMapping("/retrieve-all-livres")
+    public List&lt;Livre&gt; getLivres() {
+        return livreService.retrieveAllLivres();
+    }
+
+    @PostMapping("/add-livre")
+    public Livre addLivre(@RequestBody Livre body) {
+        return livreService.addLivre(body);
+    }
+}</code></pre>
+  <p>Adresse complète : <code>http://localhost:8089/lab/livre/retrieve-all-livres</code></p>
+</section>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

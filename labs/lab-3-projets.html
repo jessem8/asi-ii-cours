@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 3 — Projets</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="lab-2-clinique.html">Labo 2 Clinique</a><a href="lab-3-projets.html" aria-current="page">Labo 3 Projets</a><a href="lab-4-evenements.html">Labo 4 Événements</a><a href="lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Lab 3 — Projets</h1>
+<p class="lede">Un vers un dans les deux sens, un id String, et un vers plusieurs dans un seul sens.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<div class="plate"><h2>Énoncé</h2><p>Travail à faire. Base projetsdb, port 8089, context path /projets.</p><p></p><p>Equipe (idEquipe Long généré, nomEquipe).</p><p>Projet (idProjet String, sans génération, nomProjet).</p><p>Developpeur (idDeveloppeur Long généré, nom, prenom).</p><p></p><p>Une équipe réalise un seul projet, un projet est réalisé par une seule équipe. Bidirectionnelle. Le projet est le fils.</p><p>Une équipe contient plusieurs développeurs. Unidirectionnelle, depuis Equipe.</p><p></p><p>Repository de Projet : JpaRepository avec String. Le POST envoie idProjet.</p></div>
+<svg class="diagram" viewBox="0 0 680 180" role="img" aria-label="Equipe Projet"><rect x="30" y="40" width="160" height="80" fill="#f6fafc" stroke="#143652"/><text x="110" y="62" text-anchor="middle" font-size="14" fill="#17212b">Equipe</text><rect x="260" y="40" width="160" height="70" fill="#f6fafc" stroke="#143652"/><text x="340" y="62" text-anchor="middle" font-size="14" fill="#17212b">Projet</text><rect x="490" y="40" width="160" height="70" fill="#f6fafc" stroke="#143652"/><text x="570" y="62" text-anchor="middle" font-size="14" fill="#17212b">Developpeur</text></svg><p>1 — 1, Projet est le fils. 1 — * dans un seul sens vers Developpeur.</p>
+<h2>Checklist</h2>
+<label class="check"><input type="checkbox" data-step="s0"> Trois entités. idProjet est un String avec @Id et sans @GeneratedValue.</label><label class="check"><input type="checkbox" data-step="s1"> OneToOne : Equipe possède projet. Projet a mappedBy et @JsonIgnore.</label><label class="check"><input type="checkbox" data-step="s2"> OneToMany sans mappedBy vers Developpeur. Une join table, pas une foreign key sur developpeur.</label><label class="check"><input type="checkbox" data-step="s3"> POST projet avec un idProjet que tu choisis, par exemple P-2026-01.</label>
+<h2>Indices</h2>
+<p><button type="button" data-reveal data-show="Indice 1" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projetsh0">Indice 1</button></p><div id="ex3-projetsh0" hidden><p>La clé étrangère projet_id_projet est sur equipe, parce que Equipe est le propriétaire du OneToOne.</p></div><p><button type="button" data-reveal data-show="Indice 2" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projetsh1">Indice 2</button></p><div id="ex3-projetsh1" hidden><p>Developpeur n'a aucun champ d'association.</p></div>
+<h2>Tables attendues</h2>
+<ul>
+<li>equipe (id_equipe, nom_equipe, projet_id_projet)</li>
+<li>projet (id_projet varchar, nom_projet)</li>
+<li>developpeur (id_developpeur, nom, prenom)</li>
+<li>equipe_developpeurs (equipe_id_equipe, developpeurs_id_developpeur). La colonne developpeurs est la clé primaire.</li>
+</ul><p class="cite">MySQL n'était pas démarré quand ces pages ont été écrites. Cette liste suit la règle déjà vue dans tpfoyerdb : idChambre devient id_chambre, typeC devient typec. Les cinq projets compilent avec le JDK 21.</p>
+<h2>Postman</h2>
+<h3>Equipe</h3><p><code>POST http://localhost:8089/projets/equipe/add-equipe</code></p><pre><code data-lang="json">{
+  "idEquipe": null,
+  "nomEquipe": "Exemple",
+  "projet": null,
+  "developpeurs": []
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/projets/equipe/retrieve-all-equipes</code>, GET avec un id, PUT <code>modify-equipe</code> avec l'id rempli, DELETE <code>remove-equipe/{id}</code>.</p>
+<h3>Projet</h3><p><code>POST http://localhost:8089/projets/projet/add-projet</code></p><pre><code data-lang="json">{
+  "idProjet": "P-2026-01",
+  "nomProjet": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/projets/projet/retrieve-all-projets</code>, GET avec un id, PUT <code>modify-projet</code> avec l'id rempli, DELETE <code>remove-projet/{id}</code>.</p>
+<h3>Developpeur</h3><p><code>POST http://localhost:8089/projets/developpeur/add-developpeur</code></p><pre><code data-lang="json">{
+  "idDeveloppeur": null,
+  "nom": "Exemple",
+  "prenom": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/projets/developpeur/retrieve-all-developpeurs</code>, GET avec un id, PUT <code>modify-developpeur</code> avec l'id rempli, DELETE <code>remove-developpeur/{id}</code>.</p>
+<h2>Solution</h2>
+<p>Même forme que le projet du cours. Tu tapes la version ci-dessous, avec le port 8089.</p>
+<p><button type="button" data-reveal data-show="student-application.properties" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-studentapplicationproperties">student-application.properties</button></p><div id="ex3-projets-studentapplicationproperties" hidden><pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/projetsdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;the MAMP MySQL password&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/projets</code></pre></div>
+<p><button type="button" data-reveal data-show="Developpeur.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-Developpeurjava">Developpeur.java</button></p><div id="ex3-projets-Developpeurjava" hidden><pre><code data-lang="java">package tn.esprit.projets.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Developpeur {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idDeveloppeur;
+    private String nom;
+    private String prenom;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Equipe.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-Equipejava">Equipe.java</button></p><div id="ex3-projets-Equipejava" hidden><pre><code data-lang="java">package tn.esprit.projets.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Equipe {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idEquipe;
+    private String nomEquipe;
+    @OneToOne
+    private Projet projet;
+    @OneToMany
+    private Set&lt;Developpeur&gt; developpeurs;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Projet.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-Projetjava">Projet.java</button></p><div id="ex3-projets-Projetjava" hidden><pre><code data-lang="java">package tn.esprit.projets.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Projet {
+    @Id
+    private String idProjet;
+    private String nomProjet;
+    @OneToOne(mappedBy = "projet")
+    @JsonIgnore
+    private Equipe equipe;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="DeveloppeurRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-DeveloppeurRepositoryjava">DeveloppeurRepository.java</button></p><div id="ex3-projets-DeveloppeurRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.projets.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.projets.entity.Developpeur;
+
+@Repository
+public interface DeveloppeurRepository extends JpaRepository&lt;Developpeur, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EquipeRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-EquipeRepositoryjava">EquipeRepository.java</button></p><div id="ex3-projets-EquipeRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.projets.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.projets.entity.Equipe;
+
+@Repository
+public interface EquipeRepository extends JpaRepository&lt;Equipe, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ProjetRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-ProjetRepositoryjava">ProjetRepository.java</button></p><div id="ex3-projets-ProjetRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.projets.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.projets.entity.Projet;
+
+@Repository
+public interface ProjetRepository extends JpaRepository&lt;Projet, String&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IDeveloppeurService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-IDeveloppeurServicejava">IDeveloppeurService.java</button></p><div id="ex3-projets-IDeveloppeurServicejava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import tn.esprit.projets.entity.Developpeur;
+
+import java.util.List;
+
+public interface IDeveloppeurService {
+    List&lt;Developpeur&gt; retrieveAllDeveloppeurs();
+    Developpeur retrieveDeveloppeur(Long developpeurId);
+    Developpeur addDeveloppeur(Developpeur developpeur);
+    void removeDeveloppeur(Long developpeurId);
+    Developpeur modifyDeveloppeur(Developpeur developpeur);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IEquipeService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-IEquipeServicejava">IEquipeService.java</button></p><div id="ex3-projets-IEquipeServicejava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import tn.esprit.projets.entity.Equipe;
+
+import java.util.List;
+
+public interface IEquipeService {
+    List&lt;Equipe&gt; retrieveAllEquipes();
+    Equipe retrieveEquipe(Long equipeId);
+    Equipe addEquipe(Equipe equipe);
+    void removeEquipe(Long equipeId);
+    Equipe modifyEquipe(Equipe equipe);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IProjetService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-IProjetServicejava">IProjetService.java</button></p><div id="ex3-projets-IProjetServicejava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import tn.esprit.projets.entity.Projet;
+
+import java.util.List;
+
+public interface IProjetService {
+    List&lt;Projet&gt; retrieveAllProjets();
+    Projet retrieveProjet(String projetId);
+    Projet addProjet(Projet projet);
+    void removeProjet(String projetId);
+    Projet modifyProjet(Projet projet);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="DeveloppeurServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-DeveloppeurServiceImpljava">DeveloppeurServiceImpl.java</button></p><div id="ex3-projets-DeveloppeurServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.projets.entity.Developpeur;
+import tn.esprit.projets.repository.DeveloppeurRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class DeveloppeurServiceImpl implements IDeveloppeurService {
+
+    DeveloppeurRepository developpeurRepository;
+
+    public List&lt;Developpeur&gt; retrieveAllDeveloppeurs() {
+        return developpeurRepository.findAll();
+    }
+
+    public Developpeur retrieveDeveloppeur(Long developpeurId) {
+        return developpeurRepository.findById(developpeurId).get();
+    }
+
+    public Developpeur addDeveloppeur(Developpeur developpeur) {
+        return developpeurRepository.save(developpeur);
+    }
+
+    public void removeDeveloppeur(Long developpeurId) {
+        developpeurRepository.deleteById(developpeurId);
+    }
+
+    public Developpeur modifyDeveloppeur(Developpeur developpeur) {
+        return developpeurRepository.save(developpeur);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EquipeServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-EquipeServiceImpljava">EquipeServiceImpl.java</button></p><div id="ex3-projets-EquipeServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.projets.entity.Equipe;
+import tn.esprit.projets.repository.EquipeRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class EquipeServiceImpl implements IEquipeService {
+
+    EquipeRepository equipeRepository;
+
+    public List&lt;Equipe&gt; retrieveAllEquipes() {
+        return equipeRepository.findAll();
+    }
+
+    public Equipe retrieveEquipe(Long equipeId) {
+        return equipeRepository.findById(equipeId).get();
+    }
+
+    public Equipe addEquipe(Equipe equipe) {
+        return equipeRepository.save(equipe);
+    }
+
+    public void removeEquipe(Long equipeId) {
+        equipeRepository.deleteById(equipeId);
+    }
+
+    public Equipe modifyEquipe(Equipe equipe) {
+        return equipeRepository.save(equipe);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ProjetServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-ProjetServiceImpljava">ProjetServiceImpl.java</button></p><div id="ex3-projets-ProjetServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.projets.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.projets.entity.Projet;
+import tn.esprit.projets.repository.ProjetRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class ProjetServiceImpl implements IProjetService {
+
+    ProjetRepository projetRepository;
+
+    public List&lt;Projet&gt; retrieveAllProjets() {
+        return projetRepository.findAll();
+    }
+
+    public Projet retrieveProjet(String projetId) {
+        return projetRepository.findById(projetId).get();
+    }
+
+    public Projet addProjet(Projet projet) {
+        return projetRepository.save(projet);
+    }
+
+    public void removeProjet(String projetId) {
+        projetRepository.deleteById(projetId);
+    }
+
+    public Projet modifyProjet(Projet projet) {
+        return projetRepository.save(projet);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="DeveloppeurRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-DeveloppeurRestControllerjava">DeveloppeurRestController.java</button></p><div id="ex3-projets-DeveloppeurRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.projets.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.projets.entity.Developpeur;
+import tn.esprit.projets.service.IDeveloppeurService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/developpeur")
+public class DeveloppeurRestController {
+
+    IDeveloppeurService developpeurService;
+
+    // http://localhost:8089/projets/developpeur/retrieve-all-developpeurs
+    @GetMapping("/retrieve-all-developpeurs")
+    public List&lt;Developpeur&gt; getDeveloppeurs() {
+        return developpeurService.retrieveAllDeveloppeurs();
+    }
+
+    // http://localhost:8089/projets/developpeur/retrieve-developpeur/1
+    @GetMapping("/retrieve-developpeur/{developpeur-id}")
+    public Developpeur retrieveDeveloppeur(@PathVariable("developpeur-id") Long id) {
+        return developpeurService.retrieveDeveloppeur(id);
+    }
+
+    @PostMapping("/add-developpeur")
+    public Developpeur addDeveloppeur(@RequestBody Developpeur body) {
+        return developpeurService.addDeveloppeur(body);
+    }
+
+    @DeleteMapping("/remove-developpeur/{developpeur-id}")
+    public void removeDeveloppeur(@PathVariable("developpeur-id") Long id) {
+        developpeurService.removeDeveloppeur(id);
+    }
+
+    @PutMapping("/modify-developpeur")
+    public Developpeur modifyDeveloppeur(@RequestBody Developpeur body) {
+        return developpeurService.modifyDeveloppeur(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EquipeRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-EquipeRestControllerjava">EquipeRestController.java</button></p><div id="ex3-projets-EquipeRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.projets.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.projets.entity.Equipe;
+import tn.esprit.projets.service.IEquipeService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/equipe")
+public class EquipeRestController {
+
+    IEquipeService equipeService;
+
+    // http://localhost:8089/projets/equipe/retrieve-all-equipes
+    @GetMapping("/retrieve-all-equipes")
+    public List&lt;Equipe&gt; getEquipes() {
+        return equipeService.retrieveAllEquipes();
+    }
+
+    // http://localhost:8089/projets/equipe/retrieve-equipe/1
+    @GetMapping("/retrieve-equipe/{equipe-id}")
+    public Equipe retrieveEquipe(@PathVariable("equipe-id") Long id) {
+        return equipeService.retrieveEquipe(id);
+    }
+
+    @PostMapping("/add-equipe")
+    public Equipe addEquipe(@RequestBody Equipe body) {
+        return equipeService.addEquipe(body);
+    }
+
+    @DeleteMapping("/remove-equipe/{equipe-id}")
+    public void removeEquipe(@PathVariable("equipe-id") Long id) {
+        equipeService.removeEquipe(id);
+    }
+
+    @PutMapping("/modify-equipe")
+    public Equipe modifyEquipe(@RequestBody Equipe body) {
+        return equipeService.modifyEquipe(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ProjetRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex3-projets-ProjetRestControllerjava">ProjetRestController.java</button></p><div id="ex3-projets-ProjetRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.projets.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.projets.entity.Projet;
+import tn.esprit.projets.service.IProjetService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/projet")
+public class ProjetRestController {
+
+    IProjetService projetService;
+
+    // http://localhost:8089/projets/projet/retrieve-all-projets
+    @GetMapping("/retrieve-all-projets")
+    public List&lt;Projet&gt; getProjets() {
+        return projetService.retrieveAllProjets();
+    }
+
+    // http://localhost:8089/projets/projet/retrieve-projet/1
+    @GetMapping("/retrieve-projet/{projet-id}")
+    public Projet retrieveProjet(@PathVariable("projet-id") String id) {
+        return projetService.retrieveProjet(id);
+    }
+
+    @PostMapping("/add-projet")
+    public Projet addProjet(@RequestBody Projet body) {
+        return projetService.addProjet(body);
+    }
+
+    @DeleteMapping("/remove-projet/{projet-id}")
+    public void removeProjet(@PathVariable("projet-id") String id) {
+        projetService.removeProjet(id);
+    }
+
+    @PutMapping("/modify-projet")
+    public Projet modifyProjet(@RequestBody Projet body) {
+        return projetService.modifyProjet(body);
+    }
+}</code></pre></div>
+<h2>Grille</h2>
+<label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
+<label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
+<label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
+<label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
+<label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
+<fieldset class="quiz" data-id="ex3-projetsq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

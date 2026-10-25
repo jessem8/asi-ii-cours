@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 5 — Examen blanc</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="lab-2-clinique.html">Labo 2 Clinique</a><a href="lab-3-projets.html">Labo 3 Projets</a><a href="lab-4-evenements.html">Labo 4 Événements</a><a href="lab-5-examen-blanc.html" aria-current="page">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Lab 5 — Examen blanc</h1>
+<p class="lede">Lis le sujet. Lance le chrono. Les indices et la solution restent fermés jusqu'à 00:00.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<div class="plate"><h2>Énoncé</h2><p>Examen blanc. 60 minutes. Base stagesdb, port 8089, context path /stages. Trois entités, deux associations, repository, service, controller, un CRUD Postman.</p><p></p><p>Entreprise (idEntreprise Long généré, nom, adresse).</p><p>Offre (idOffre Long généré, titre, typeO enum TypeOffre { STAGE, ALTERNANCE, CDI }, dateDebut Date, publiee boolean).</p><p>Candidat (idCandidat Long généré, nom, prenom).</p><p></p><p>Une entreprise publie plusieurs offres. Bidirectionnelle. L'offre est le fils.</p><p>Une offre concerne plusieurs candidats, un candidat répond à plusieurs offres. Bidirectionnelle. Le candidat est le fils.</p><p></p><p>Le champ typeO se termine par une majuscule. Rappelle-toi la colonne de typeC dans tpfoyerdb.</p></div>
+<svg class="diagram" viewBox="0 0 680 180" role="img" aria-label="Stages"><rect x="20" y="40" width="170" height="70" fill="#f6fafc" stroke="#143652"/><text x="105" y="62" text-anchor="middle" font-size="14" fill="#17212b">Entreprise</text><rect x="250" y="30" width="160" height="110" fill="#f6fafc" stroke="#143652"/><text x="330" y="52" text-anchor="middle" font-size="14" fill="#17212b">Offre</text><rect x="470" y="40" width="160" height="70" fill="#f6fafc" stroke="#143652"/><text x="550" y="62" text-anchor="middle" font-size="14" fill="#17212b">Candidat</text></svg><p>1 — * , Offre est le fils. * — * , Candidat est le fils.</p>
+<h2>Checklist</h2>
+<label class="check"><input type="checkbox" data-step="s0"> Projet et properties, y compris la ligne Jackson, parce que publiee est un boolean primitif.</label><label class="check"><input type="checkbox" data-step="s1"> Enum TypeOffre et les trois entités.</label><label class="check"><input type="checkbox" data-step="s2"> Offre est le fils de Entreprise. Candidat est le fils de Offre.</label><label class="check"><input type="checkbox" data-step="s3"> Repositories, services, controllers.</label><label class="check"><input type="checkbox" data-step="s4"> Postman sur Offre avec typeO et publiee présents dans le JSON.</label><label class="check"><input type="checkbox" data-step="s5"> phpMyAdmin : la colonne de l'enum est typeo, pas type_o.</label>
+<h2>Indices</h2>
+<p data-lock-note>S'ouvre quand le chrono arrive à 00:00.</p><div data-locked hidden><p><button type="button" data-reveal data-show="Indice 1" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stagesh0">Indice 1</button></p><div id="ex5-stagesh0" hidden><p>mappedBy sur Entreprise s'appelle entreprise, le nom du champ dans Offre. @JsonIgnore sur cette collection.</p></div><p><button type="button" data-reveal data-show="Indice 2" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stagesh1">Indice 2</button></p><div id="ex5-stagesh1" hidden><p>mappedBy sur Candidat s'appelle candidats. La join table s'appelle offre_candidats.</p></div><p><button type="button" data-reveal data-show="Indice 3" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stagesh2">Indice 3</button></p><div id="ex5-stagesh2" hidden><p>typeO n'a pas de lettre minuscule après le O. La colonne est typeo.</p></div></div>
+<h2>Tables attendues</h2>
+<p data-lock-note>S'ouvre quand le chrono arrive à 00:00.</p><div data-locked hidden><ul>
+<li>entreprise (id_entreprise, nom, adresse)</li>
+<li>offre (id_offre, titre, typeo, date_debut, publiee, entreprise_id_entreprise)</li>
+<li>candidat (id_candidat, nom, prenom)</li>
+<li>offre_candidats (offres_id_offre, candidats_id_candidat)</li>
+</ul><p class="cite">MySQL n'était pas démarré quand ces pages ont été écrites. Cette liste suit la règle déjà vue dans tpfoyerdb : idChambre devient id_chambre, typeC devient typec. Les cinq projets compilent avec le JDK 21.</p></div>
+<h2>Postman</h2>
+<p data-lock-note>S'ouvre quand le chrono arrive à 00:00.</p><div data-locked hidden><h3>Entreprise</h3><p><code>POST http://localhost:8089/stages/entreprise/add-entreprise</code></p><pre><code data-lang="json">{
+  "idEntreprise": null,
+  "nom": "Exemple",
+  "adresse": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/stages/entreprise/retrieve-all-entreprises</code>, GET avec un id, PUT <code>modify-entreprise</code> avec l'id rempli, DELETE <code>remove-entreprise/{id}</code>.</p>
+<h3>Offre</h3><p><code>POST http://localhost:8089/stages/offre/add-offre</code></p><pre><code data-lang="json">{
+  "idOffre": null,
+  "titre": "Exemple",
+  "typeO": "STAGE",
+  "dateDebut": "2026-10-26",
+  "publiee": true,
+  "entreprise": null,
+  "candidats": []
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/stages/offre/retrieve-all-offres</code>, GET avec un id, PUT <code>modify-offre</code> avec l'id rempli, DELETE <code>remove-offre/{id}</code>.</p>
+<h3>Candidat</h3><p><code>POST http://localhost:8089/stages/candidat/add-candidat</code></p><pre><code data-lang="json">{
+  "idCandidat": null,
+  "nom": "Exemple",
+  "prenom": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/stages/candidat/retrieve-all-candidats</code>, GET avec un id, PUT <code>modify-candidat</code> avec l'id rempli, DELETE <code>remove-candidat/{id}</code>.</p></div>
+<h2>Solution</h2>
+<p>Même forme que le projet du cours. Tu tapes la version ci-dessous, avec le port 8089.</p>
+<p data-lock-note>S'ouvre quand le chrono arrive à 00:00.</p><div data-locked hidden><p><button type="button" data-reveal data-show="student-application.properties" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-studentapplicationproperties">student-application.properties</button></p><div id="ex5-stages-studentapplicationproperties" hidden><pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/stagesdb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;the MAMP MySQL password&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/stages</code></pre></div>
+<p><button type="button" data-reveal data-show="TypeOffre.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-TypeOffrejava">TypeOffre.java</button></p><div id="ex5-stages-TypeOffrejava" hidden><pre><code data-lang="java">package tn.esprit.stages.entity;
+
+public enum TypeOffre {
+    STAGE, ALTERNANCE, CDI
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Candidat.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-Candidatjava">Candidat.java</button></p><div id="ex5-stages-Candidatjava" hidden><pre><code data-lang="java">package tn.esprit.stages.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Candidat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idCandidat;
+    private String nom;
+    private String prenom;
+    @ManyToMany(mappedBy = "candidats")
+    @JsonIgnore
+    private Set&lt;Offre&gt; offres;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Entreprise.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-Entreprisejava">Entreprise.java</button></p><div id="ex5-stages-Entreprisejava" hidden><pre><code data-lang="java">package tn.esprit.stages.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Entreprise {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idEntreprise;
+    private String nom;
+    private String adresse;
+    @OneToMany(mappedBy = "entreprise")
+    @JsonIgnore
+    private Set&lt;Offre&gt; offres;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Offre.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-Offrejava">Offre.java</button></p><div id="ex5-stages-Offrejava" hidden><pre><code data-lang="java">package tn.esprit.stages.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Date;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Offre {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idOffre;
+    private String titre;
+    @Enumerated(EnumType.STRING)
+    private TypeOffre typeO;
+    @Temporal(TemporalType.DATE)
+    private Date dateDebut;
+    private boolean publiee;
+    @ManyToOne
+    private Entreprise entreprise;
+    @ManyToMany
+    private Set&lt;Candidat&gt; candidats;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CandidatRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-CandidatRepositoryjava">CandidatRepository.java</button></p><div id="ex5-stages-CandidatRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.stages.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.stages.entity.Candidat;
+
+@Repository
+public interface CandidatRepository extends JpaRepository&lt;Candidat, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EntrepriseRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-EntrepriseRepositoryjava">EntrepriseRepository.java</button></p><div id="ex5-stages-EntrepriseRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.stages.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.stages.entity.Entreprise;
+
+@Repository
+public interface EntrepriseRepository extends JpaRepository&lt;Entreprise, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="OffreRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-OffreRepositoryjava">OffreRepository.java</button></p><div id="ex5-stages-OffreRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.stages.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.stages.entity.Offre;
+
+@Repository
+public interface OffreRepository extends JpaRepository&lt;Offre, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ICandidatService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-ICandidatServicejava">ICandidatService.java</button></p><div id="ex5-stages-ICandidatServicejava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import tn.esprit.stages.entity.Candidat;
+
+import java.util.List;
+
+public interface ICandidatService {
+    List&lt;Candidat&gt; retrieveAllCandidats();
+    Candidat retrieveCandidat(Long candidatId);
+    Candidat addCandidat(Candidat candidat);
+    void removeCandidat(Long candidatId);
+    Candidat modifyCandidat(Candidat candidat);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IEntrepriseService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-IEntrepriseServicejava">IEntrepriseService.java</button></p><div id="ex5-stages-IEntrepriseServicejava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import tn.esprit.stages.entity.Entreprise;
+
+import java.util.List;
+
+public interface IEntrepriseService {
+    List&lt;Entreprise&gt; retrieveAllEntreprises();
+    Entreprise retrieveEntreprise(Long entrepriseId);
+    Entreprise addEntreprise(Entreprise entreprise);
+    void removeEntreprise(Long entrepriseId);
+    Entreprise modifyEntreprise(Entreprise entreprise);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IOffreService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-IOffreServicejava">IOffreService.java</button></p><div id="ex5-stages-IOffreServicejava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import tn.esprit.stages.entity.Offre;
+
+import java.util.List;
+
+public interface IOffreService {
+    List&lt;Offre&gt; retrieveAllOffres();
+    Offre retrieveOffre(Long offreId);
+    Offre addOffre(Offre offre);
+    void removeOffre(Long offreId);
+    Offre modifyOffre(Offre offre);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CandidatServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-CandidatServiceImpljava">CandidatServiceImpl.java</button></p><div id="ex5-stages-CandidatServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.stages.entity.Candidat;
+import tn.esprit.stages.repository.CandidatRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class CandidatServiceImpl implements ICandidatService {
+
+    CandidatRepository candidatRepository;
+
+    public List&lt;Candidat&gt; retrieveAllCandidats() {
+        return candidatRepository.findAll();
+    }
+
+    public Candidat retrieveCandidat(Long candidatId) {
+        return candidatRepository.findById(candidatId).get();
+    }
+
+    public Candidat addCandidat(Candidat candidat) {
+        return candidatRepository.save(candidat);
+    }
+
+    public void removeCandidat(Long candidatId) {
+        candidatRepository.deleteById(candidatId);
+    }
+
+    public Candidat modifyCandidat(Candidat candidat) {
+        return candidatRepository.save(candidat);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EntrepriseServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-EntrepriseServiceImpljava">EntrepriseServiceImpl.java</button></p><div id="ex5-stages-EntrepriseServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.stages.entity.Entreprise;
+import tn.esprit.stages.repository.EntrepriseRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class EntrepriseServiceImpl implements IEntrepriseService {
+
+    EntrepriseRepository entrepriseRepository;
+
+    public List&lt;Entreprise&gt; retrieveAllEntreprises() {
+        return entrepriseRepository.findAll();
+    }
+
+    public Entreprise retrieveEntreprise(Long entrepriseId) {
+        return entrepriseRepository.findById(entrepriseId).get();
+    }
+
+    public Entreprise addEntreprise(Entreprise entreprise) {
+        return entrepriseRepository.save(entreprise);
+    }
+
+    public void removeEntreprise(Long entrepriseId) {
+        entrepriseRepository.deleteById(entrepriseId);
+    }
+
+    public Entreprise modifyEntreprise(Entreprise entreprise) {
+        return entrepriseRepository.save(entreprise);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="OffreServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-OffreServiceImpljava">OffreServiceImpl.java</button></p><div id="ex5-stages-OffreServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.stages.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.stages.entity.Offre;
+import tn.esprit.stages.repository.OffreRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class OffreServiceImpl implements IOffreService {
+
+    OffreRepository offreRepository;
+
+    public List&lt;Offre&gt; retrieveAllOffres() {
+        return offreRepository.findAll();
+    }
+
+    public Offre retrieveOffre(Long offreId) {
+        return offreRepository.findById(offreId).get();
+    }
+
+    public Offre addOffre(Offre offre) {
+        return offreRepository.save(offre);
+    }
+
+    public void removeOffre(Long offreId) {
+        offreRepository.deleteById(offreId);
+    }
+
+    public Offre modifyOffre(Offre offre) {
+        return offreRepository.save(offre);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="CandidatRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-CandidatRestControllerjava">CandidatRestController.java</button></p><div id="ex5-stages-CandidatRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.stages.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.stages.entity.Candidat;
+import tn.esprit.stages.service.ICandidatService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/candidat")
+public class CandidatRestController {
+
+    ICandidatService candidatService;
+
+    // http://localhost:8089/stages/candidat/retrieve-all-candidats
+    @GetMapping("/retrieve-all-candidats")
+    public List&lt;Candidat&gt; getCandidats() {
+        return candidatService.retrieveAllCandidats();
+    }
+
+    // http://localhost:8089/stages/candidat/retrieve-candidat/1
+    @GetMapping("/retrieve-candidat/{candidat-id}")
+    public Candidat retrieveCandidat(@PathVariable("candidat-id") Long id) {
+        return candidatService.retrieveCandidat(id);
+    }
+
+    @PostMapping("/add-candidat")
+    public Candidat addCandidat(@RequestBody Candidat body) {
+        return candidatService.addCandidat(body);
+    }
+
+    @DeleteMapping("/remove-candidat/{candidat-id}")
+    public void removeCandidat(@PathVariable("candidat-id") Long id) {
+        candidatService.removeCandidat(id);
+    }
+
+    @PutMapping("/modify-candidat")
+    public Candidat modifyCandidat(@RequestBody Candidat body) {
+        return candidatService.modifyCandidat(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="EntrepriseRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-EntrepriseRestControllerjava">EntrepriseRestController.java</button></p><div id="ex5-stages-EntrepriseRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.stages.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.stages.entity.Entreprise;
+import tn.esprit.stages.service.IEntrepriseService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/entreprise")
+public class EntrepriseRestController {
+
+    IEntrepriseService entrepriseService;
+
+    // http://localhost:8089/stages/entreprise/retrieve-all-entreprises
+    @GetMapping("/retrieve-all-entreprises")
+    public List&lt;Entreprise&gt; getEntreprises() {
+        return entrepriseService.retrieveAllEntreprises();
+    }
+
+    // http://localhost:8089/stages/entreprise/retrieve-entreprise/1
+    @GetMapping("/retrieve-entreprise/{entreprise-id}")
+    public Entreprise retrieveEntreprise(@PathVariable("entreprise-id") Long id) {
+        return entrepriseService.retrieveEntreprise(id);
+    }
+
+    @PostMapping("/add-entreprise")
+    public Entreprise addEntreprise(@RequestBody Entreprise body) {
+        return entrepriseService.addEntreprise(body);
+    }
+
+    @DeleteMapping("/remove-entreprise/{entreprise-id}")
+    public void removeEntreprise(@PathVariable("entreprise-id") Long id) {
+        entrepriseService.removeEntreprise(id);
+    }
+
+    @PutMapping("/modify-entreprise")
+    public Entreprise modifyEntreprise(@RequestBody Entreprise body) {
+        return entrepriseService.modifyEntreprise(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="OffreRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex5-stages-OffreRestControllerjava">OffreRestController.java</button></p><div id="ex5-stages-OffreRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.stages.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.stages.entity.Offre;
+import tn.esprit.stages.service.IOffreService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/offre")
+public class OffreRestController {
+
+    IOffreService offreService;
+
+    // http://localhost:8089/stages/offre/retrieve-all-offres
+    @GetMapping("/retrieve-all-offres")
+    public List&lt;Offre&gt; getOffres() {
+        return offreService.retrieveAllOffres();
+    }
+
+    // http://localhost:8089/stages/offre/retrieve-offre/1
+    @GetMapping("/retrieve-offre/{offre-id}")
+    public Offre retrieveOffre(@PathVariable("offre-id") Long id) {
+        return offreService.retrieveOffre(id);
+    }
+
+    @PostMapping("/add-offre")
+    public Offre addOffre(@RequestBody Offre body) {
+        return offreService.addOffre(body);
+    }
+
+    @DeleteMapping("/remove-offre/{offre-id}")
+    public void removeOffre(@PathVariable("offre-id") Long id) {
+        offreService.removeOffre(id);
+    }
+
+    @PutMapping("/modify-offre")
+    public Offre modifyOffre(@RequestBody Offre body) {
+        return offreService.modifyOffre(body);
+    }
+}</code></pre></div></div>
+<h2>Grille</h2>
+<label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
+<label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
+<label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
+<label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
+<label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
+<fieldset class="quiz" data-id="ex5-stagesq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

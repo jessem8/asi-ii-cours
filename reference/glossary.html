@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mots du cours</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="battle-plan.html">Plan des 60 minutes</a><a href="cheat-sheet.html">Fiche</a><a href="shortcuts.html">Raccourcis</a><a href="flashcards.html">Cartes</a><a href="error-doctor.html">Erreurs</a><a href="glossary.html" aria-current="page">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Mots du cours</h1>
+<p class="lede">Les mots des slides, avec une phrase simple.</p>
+<p><label>Chercher <input class="search" data-finder type="search" placeholder="fils, bean"></label></p>
+<table>
+  <thead><tr><th>Mot</th><th>Ça veut dire</th></tr></thead>
+  <tbody>
+    <tr data-find="Entité La classe Java qui devient une table. @Entity sur la classe, @Id sur la clé."><td>Entité</td><td>La classe Java qui devient une table. @Entity sur la classe, @Id sur la clé.</td></tr><tr data-find="Fils Le côté que le professeur désigne. Dans le code, c'est le côté mappedBy."><td>Fils</td><td>Le côté que le professeur désigne. Dans le code, c'est le côté mappedBy.</td></tr><tr data-find="mappedBy Dit : l'autre classe garde le lien. Ce côté ne crée pas sa propre clé étrangère."><td>mappedBy</td><td>Dit : l'autre classe garde le lien. Ce côté ne crée pas sa propre clé étrangère.</td></tr><tr data-find="Couplage fort Ta classe fait new sur l'autre classe. Si l'autre change, la tienne doit changer."><td>Couplage fort</td><td>Ta classe fait new sur l'autre classe. Si l'autre change, la tienne doit changer.</td></tr><tr data-find="Couplage faible Ta classe demande une interface. Spring fournit l'objet."><td>Couplage faible</td><td>Ta classe demande une interface. Spring fournit l'objet.</td></tr><tr data-find="Injection Spring passe un objet à un autre. Ici, par le constructeur de Lombok."><td>Injection</td><td>Spring passe un objet à un autre. Ici, par le constructeur de Lombok.</td></tr><tr data-find="Bean Un objet créé par Spring. @Service en marque un."><td>Bean</td><td>Un objet créé par Spring. @Service en marque un.</td></tr><tr data-find="Repository L'interface vide qui lit et écrit une table."><td>Repository</td><td>L'interface vide qui lit et écrit une table.</td></tr><tr data-find="Service La classe qui appelle le repository. Le controller appelle le service."><td>Service</td><td>La classe qui appelle le repository. Le controller appelle le service.</td></tr><tr data-find="Controller La classe qui reçoit l'appel HTTP et renvoie le JSON."><td>Controller</td><td>La classe qui reçoit l'appel HTTP et renvoie le JSON.</td></tr><tr data-find="Context path Le morceau d'adresse juste après le port. Exemple : /tpfoyer."><td>Context path</td><td>Le morceau d'adresse juste après le port. Exemple : /tpfoyer.</td></tr><tr data-find="Table de jointure Une table qui ne sert qu'à relier deux entités."><td>Table de jointure</td><td>Une table qui ne sert qu'à relier deux entités.</td></tr><tr data-find="ddl-auto=update Crée les tables et les colonnes qui manquent. N'efface rien."><td>ddl-auto=update</td><td>Crée les tables et les colonnes qui manquent. N'efface rien.</td></tr>
+  </tbody>
+</table>
+<p><fieldset class="quiz" data-id="g1" data-answer="1" data-why="Le fils est le côté mappedBy."><legend>Foyer est le fils de Universite. Sur Foyer tu mets</legend><button type="button" data-i="0">OneToOne sans mappedBy</button><button type="button" data-i="1">OneToOne avec mappedBy</button><button type="button" data-i="2">ManyToOne avec mappedBy</button><p class="feedback" hidden></p></fieldset></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

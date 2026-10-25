@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. Lombok</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html">1. Spring Boot et Maven</a><a href="02-entites.html">2. Entités</a><a href="03-lombok.html" aria-current="page">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html">5. JpaRepository</a><a href="06-injection.html">6. Injection</a><a href="07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>3. Lombok</h1>
+<p class="lede">Lombok écrit les getters, les setters et les constructeurs. Tu ne les tapes pas.</p>
+<p class="cite">Chapitre Lombok. Sur chaque entité : Getter, Setter, AllArgsConstructor, NoArgsConstructor.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<pre><code data-lang="java">@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Bloc {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idBloc;
+    private String nomBloc;
+}</code></pre>
+<p>Ces quatre annotations vont sur chaque entité du TP.</p>
+<p>Tu n'utilises pas <code>@Data</code>. Avec une association dans les deux sens, <code>@Data</code> fait une boucle dans <code>toString</code>.</p>
+<p>Si IntelliJ dit <code>cannot find symbol getNom</code>, Lombok n'a pas généré la méthode. Va dans Settings, Build, Compiler, Annotation Processors, et coche Enable annotation processing. Le plugin Lombok doit être installé.</p>
+<fieldset class="quiz" data-id="l1" data-answer="0" data-why="Le cours met ces quatre annotations, pas @Data."><legend>Sur une entité du TP, tu mets</legend><button type="button" data-i="0">Getter, Setter, AllArgsConstructor, NoArgsConstructor</button><button type="button" data-i="1">Data seulement</button><button type="button" data-i="2">rien, Java écrit les getters tout seul</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="l2" data-answer="1" data-why="@Data génère toString. Avec un lien dans les deux sens, toString ne s'arrête pas."><legend>Pourquoi on évite @Data sur ces entités ?</legend><button type="button" data-i="0">Boot 4 a supprimé @Data</button><button type="button" data-i="1">toString tourne en boucle avec les associations</button><button type="button" data-i="2">MySQL refuse Lombok</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="l3" data-answer="2" data-why="Les méthodes Lombok n'existent que si le traitement des annotations est activé."><legend>getNomBloc est introuvable. Tu</legend><button type="button" data-i="0">écris le getter à la main et tu enlèves Lombok</button><button type="button" data-i="1">changes le nom du champ</button><button type="button" data-i="2">actives Annotation Processing et tu rebuild</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="04-associations.html">Leçon suivante : Associations</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

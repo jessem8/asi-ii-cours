@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan des 60 minutes</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="battle-plan.html" aria-current="page">Plan des 60 minutes</a><a href="cheat-sheet.html">Fiche</a><a href="shortcuts.html">Raccourcis</a><a href="flashcards.html">Cartes</a><a href="error-doctor.html">Erreurs</a><a href="glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Plan des 60 minutes</h1>
+<p class="lede">Tu finis une entité jusqu'au controller. Ensuite tu copies la classe et tu changes le nom. Tu ne réfléchis pas trois fois au même fichier.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<table><thead><tr><th>Min</th><th>Tu fais</th><th>C'est bon quand</th></tr></thead><tbody><tr data-minute="0"><td>00</td><td>Créer le projet</td><td>IntelliJ, Spring Boot, Maven, Java 21. Coche Spring Web, Spring Data JPA, MySQL Driver, Lombok.</td></tr><tr data-minute="6"><td>06</td><td>Properties et premier lancement</td><td>Colle application.properties. SDK 21. Lance. La console dit Started et Tomcat sur 8089.</td></tr><tr data-minute="10"><td>10</td><td>Les trois entités</td><td>Package entity. @Entity, les quatre annotations Lombok, @Id. Enum et dates si le sujet en a.</td></tr><tr data-minute="22"><td>22</td><td>Les associations</td><td>Le fils a mappedBy et @JsonIgnore. Lance. Lis les create table. Compte les tables dans phpMyAdmin.</td></tr><tr data-minute="32"><td>32</td><td>Les repositories</td><td>Package repository. Une interface par entité. Pas de méthode dedans.</td></tr><tr data-minute="38"><td>38</td><td>Les services</td><td>Une interface et une classe @Service @AllArgsConstructor. Le repository est un champ. Pas de new.</td></tr><tr data-minute="48"><td>48</td><td>Les controllers</td><td>Package control. Cinq adresses par entité.</td></tr><tr data-minute="56"><td>56</td><td>Postman</td><td>Un CRUD complet sur la première entité. Puis les deux autres, mêmes adresses, autres noms.</td></tr></tbody></table>
+<h2>Avant de t'asseoir</h2>
+<label class="check"><input type="checkbox" data-step="mamp"> MAMP est démarré. MySQL est vert.</label>
+<label class="check"><input type="checkbox" data-step="jdk"> Project Structure, SDK 21.</label>
+<label class="check"><input type="checkbox" data-step="lombok"> Annotation Processing est coché.</label>
+<h2>Pour aller plus vite</h2>
+<p>Termine la première entité, son repository, son service et son controller. Dans la vue Project, sélectionne la classe et appuie sur F5, Copy Class. Puis Ctrl+R pour remplacer l'ancien nom.</p>
+<p>Les associations se codent sur les entités, après les trois classes. Si tu te trompes et que les tables existent déjà, supprime la base. <code>update</code> n'efface pas les colonnes.</p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

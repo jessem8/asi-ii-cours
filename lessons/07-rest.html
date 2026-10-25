@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7. REST et Postman</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html">1. Spring Boot et Maven</a><a href="02-entites.html">2. Entités</a><a href="03-lombok.html">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html">5. JpaRepository</a><a href="06-injection.html">6. Injection</a><a href="07-rest.html" aria-current="page">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>7. REST et Postman</h1>
+<p class="lede">Le controller reçoit l'appel HTTP et appelle le service. L'adresse est faite de quatre morceaux.</p>
+<p class="cite">WS REST. Une page du PDF met le context path /foyer. Les URL du chapitre utilisent /tpfoyer. Tu suis application.properties.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<h2>Les quatre morceaux</h2>
+<p><code>http://localhost:8089/tpfoyer/bloc/retrieve-all-blocs</code></p>
+<ul>
+  <li><code>8089</code> est le port.</li>
+  <li><code>/tpfoyer</code> est le context path.</li>
+  <li><code>/bloc</code> est <code>@RequestMapping</code> sur la classe.</li>
+  <li><code>/retrieve-all-blocs</code> est <code>@GetMapping</code> sur la méthode.</li>
+</ul>
+<p>Si un morceau manque, Postman répond 404 alors que l'application tourne.</p>
+<pre><code data-lang="java">@RestController
+@AllArgsConstructor
+@RequestMapping("/bloc")
+public class BlocRestController {
+    IBlocService blocService;
+
+    @GetMapping("/retrieve-all-blocs")
+    public List&lt;Bloc&gt; getBlocs() {
+        return blocService.retrieveAllBlocs();
+    }
+
+    @GetMapping("/retrieve-bloc/{bloc-id}")
+    public Bloc retrieveBloc(@PathVariable("bloc-id") Long id) {
+        return blocService.retrieveBloc(id);
+    }
+
+    @PostMapping("/add-bloc")
+    public Bloc addBloc(@RequestBody Bloc b) {
+        return blocService.addBloc(b);
+    }
+
+    @DeleteMapping("/remove-bloc/{bloc-id}")
+    public void removeBloc(@PathVariable("bloc-id") Long id) {
+        blocService.removeBloc(id);
+    }
+
+    @PutMapping("/modify-bloc")
+    public Bloc modifyBloc(@RequestBody Bloc b) {
+        return blocService.modifyBloc(b);
+    }
+}</code></pre>
+<p>GET et DELETE mettent l'id dans l'adresse. POST et PUT mettent l'objet dans le corps. Le nom dans <code>@PathVariable</code> est le nom entre accolades, ici <code>bloc-id</code>. L'argument Java peut s'appeler <code>id</code>.</p>
+<h2>Le JSON</h2>
+<pre><code data-lang="json">{
+  "idBloc": null,
+  "nomBloc": "A",
+  "capaciteBloc": 100
+}</code></pre>
+<p>Les noms sont ceux des champs Java : <code>nomBloc</code>, pas <code>nom_bloc</code>.</p>
+<p>Un <code>boolean</code> primitif absent donne une erreur 400 sur Boot 4, sauf si la ligne Jackson est dans <code>application.properties</code>. Envoie <code>true</code> ou <code>false</code>.</p>
+<p>Il n'y a pas de cascade dans ce TP. Tu crées chaque entité avec son propre POST.</p>
+<h2>Les quatre couches, maintenant que tu les as vues</h2>
+<ol>
+  <li>Postman appelle l'adresse.</li>
+  <li>Le controller reçoit l'appel et appelle le service.</li>
+  <li>Le service appelle le repository. Spring a mis le repository dans le service.</li>
+  <li>Le repository lit ou écrit la table. Hibernate montre le SQL dans la console.</li>
+</ol>
+<fieldset class="quiz" data-id="s1" data-answer="1" data-why="Port, context path, classe, méthode."><legend>L'adresse de la liste des blocs se termine par</legend><button type="button" data-i="0">/retrieve-all-blocs juste après le port</button><button type="button" data-i="1">/tpfoyer/bloc/retrieve-all-blocs</button><button type="button" data-i="2">/bloc/tpfoyer/retrieve-all-blocs</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="s2" data-answer="0" data-why="Le nom dans l'annotation est celui des accolades."><legend>Pour le chemin bloc-id, tu écris</legend><button type="button" data-i="0">PathVariable avec le nom bloc-id</button><button type="button" data-i="1">PathVariable avec le nom id</button><button type="button" data-i="2">RequestBody sur l'argument</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="s3" data-answer="2" data-why="POST et PUT portent l'objet. GET et DELETE portent l'id dans l'adresse."><legend>@RequestBody est sur</legend><button type="button" data-i="0">retrieve-all</button><button type="button" data-i="1">remove</button><button type="button" data-i="2">add et modify</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="s4" data-answer="1" data-why="Un boolean primitif manquant est refusé par Jackson 3."><legend>Tu envoies une Reservation sans estValide, et la ligne Jackson n'est pas là. Postman affiche</legend><button type="button" data-i="0">200</button><button type="button" data-i="1">400</button><button type="button" data-i="2">404</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="../reference/battle-plan.html">Plan des 60 minutes</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

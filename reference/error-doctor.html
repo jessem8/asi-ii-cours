@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erreurs</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="battle-plan.html">Plan des 60 minutes</a><a href="cheat-sheet.html">Fiche</a><a href="shortcuts.html">Raccourcis</a><a href="flashcards.html">Cartes</a><a href="error-doctor.html" aria-current="page">Erreurs</a><a href="glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Erreurs</h1>
+<p class="lede">Colle un morceau du message. La ligne qui correspond reste.</p>
+<p><label>Chercher <input class="search" data-finder type="search" placeholder="Colle l'erreur"></label></p>
+<table>
+  <thead><tr><th>Tu vois</th><th>Ça veut dire</th><th>Tu fais</th></tr></thead>
+  <tbody>
+    <tr data-find="Communications link failure MySQL n'est pas démarré Démarre MAMP, attends que MySQL soit vert, relance."><td>Communications link failure</td><td>MySQL n'est pas démarré</td><td>Démarre MAMP, attends que MySQL soit vert, relance.</td></tr><tr data-find="Port 8089 was already in use Une autre application utilise le port Arrête l'autre projet avec Ctrl+F2."><td>Port 8089 was already in use</td><td>Une autre application utilise le port</td><td>Arrête l'autre projet avec Ctrl+F2.</td></tr><tr data-find="Cannot map null into type boolean Erreur 400 Ajoute la ligne Jackson, ou envoie true ou false dans le JSON."><td>Cannot map null into type boolean</td><td>Erreur 400</td><td>Ajoute la ligne Jackson, ou envoie true ou false dans le JSON.</td></tr><tr data-find="NoSuchElementException Erreur 500 findById(id).get() et cet id n'existe pas. Vérifie le numéro dans l'adresse."><td>NoSuchElementException</td><td>Erreur 500</td><td>findById(id).get() et cet id n'existe pas. Vérifie le numéro dans l'adresse.</td></tr><tr data-find="StackOverflowError Le JSON tourne en boucle Mets @JsonIgnore sur le côté mappedBy."><td>StackOverflowError</td><td>Le JSON tourne en boucle</td><td>Mets @JsonIgnore sur le côté mappedBy.</td></tr><tr data-find="HHH90000033 @Temporal est déprécié C'est un avertissement. L'application marche. Tu gardes l'annotation."><td>HHH90000033</td><td>@Temporal est déprécié</td><td>C'est un avertissement. L'application marche. Tu gardes l'annotation.</td></tr><tr data-find="cannot find symbol getNom Lombok n'a pas généré la méthode Coche Annotation Processing. Installe le plugin Lombok. Rebuild."><td>cannot find symbol getNom</td><td>Lombok n'a pas généré la méthode</td><td>Coche Annotation Processing. Installe le plugin Lombok. Rebuild.</td></tr><tr data-find="colonne qui reste Tu as enlevé un champ en Java et la colonne est encore là update n'efface pas. Supprime la base et relance."><td>colonne qui reste</td><td>Tu as enlevé un champ en Java et la colonne est encore là</td><td>update n'efface pas. Supprime la base et relance.</td></tr><tr data-find="404 Not Found L'adresse est fausse Vérifie le port, le context path, @RequestMapping et le nom de la méthode."><td>404 Not Found</td><td>L'adresse est fausse</td><td>Vérifie le port, le context path, @RequestMapping et le nom de la méthode.</td></tr><tr data-find="Access denied for user Mauvais mot de passe MySQL Utilise le mot de passe MAMP. Le mot de passe vide du slide ne marche pas ici."><td>Access denied for user</td><td>Mauvais mot de passe MySQL</td><td>Utilise le mot de passe MAMP. Le mot de passe vide du slide ne marche pas ici.</td></tr>
+  </tbody>
+</table>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

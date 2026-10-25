@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="battle-plan.html">Plan des 60 minutes</a><a href="cheat-sheet.html">Fiche</a><a href="shortcuts.html">Raccourcis</a><a href="flashcards.html" aria-current="page">Cartes</a><a href="error-doctor.html">Erreurs</a><a href="glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Cartes</h1>
+<p class="lede">Clique la carte pour la retourner. Je savais l'envoie plus loin. Encore la remet au début.</p>
+<p id="card-meta" class="due"></p>
+<div id="deck" hidden data-cards='[{"id":"c0","front":"@Id est obligatoire sur la clé.","back":"Sans @Id, l&#39;entité ne démarre pas."},{"id":"c1","front":"IDENTITY veut dire que MySQL choisit le numéro.","back":"C&#39;est pour les id Long."},{"id":"c2","front":"Un id String n&#39;a pas @GeneratedValue.","back":"Tu envoies l&#39;id dans le JSON."},{"id":"c3","front":"EnumType.STRING garde le nom, pas un chiffre.","back":"DOUBLE reste le mot DOUBLE."},{"id":"c4","front":"typeC devient la colonne typec.","back":"La majuscule est à la fin, pas de _."},{"id":"c5","front":"idChambre devient id_chambre.","back":"La majuscule est au milieu."},{"id":"c6","front":"Pas de @Data sur une entité liée dans les deux sens.","back":"toString tourne en boucle."},{"id":"c7","front":"Les quatre annotations Lombok.","back":"Getter, Setter, AllArgsConstructor, NoArgsConstructor."},{"id":"c8","front":"Le fils a mappedBy et @JsonIgnore.","back":"L&#39;autre classe garde la clé ou la jointure."},{"id":"c9","front":"Un vers plusieurs dans les deux sens n&#39;a pas de table de jointure.","back":"La clé est sur la table du fils."},{"id":"c10","front":"OneToMany sans mappedBy crée une table de jointure.","back":"Exemple : chambre_reservations."},{"id":"c11","front":"ManyToOne seul crée une clé étrangère.","back":"Pas de table de jointure."},{"id":"c12","front":"update n&#39;efface pas une colonne.","back":"Tu supprimes la base, puis tu relances."},{"id":"c13","front":"Le repository est une interface vide.","back":"Spring écrit la classe au démarrage."},{"id":"c14","front":"Le deuxième type de JpaRepository est le type de l&#39;id.","back":"Long, ou String pour Reservation."},{"id":"c15","front":"save ajoute ou modifie.","back":"Selon que l&#39;id existe déjà."},{"id":"c16","front":"findById(id).get() sur un id absent donne 500.","back":"C&#39;est le code du cours."},{"id":"c17","front":"@Service @AllArgsConstructor remplit le repository.","back":"Tu n&#39;écris pas new."},{"id":"c18","front":"Le controller demande l&#39;interface du service.","back":"IBlocService, pas BlocServiceImpl."},{"id":"c19","front":"@Qualifier seulement s&#39;il y a deux implémentations.","back":"Avec une seule, tu n&#39;en mets pas."},{"id":"c20","front":"L&#39;adresse a quatre morceaux.","back":"port, context path, classe, méthode."},{"id":"c21","front":"@PathVariable reprend le nom entre accolades.","back":"bloc-id, même si l&#39;argument s&#39;appelle id."},{"id":"c22","front":"@RequestBody est pour POST et PUT.","back":"GET et DELETE mettent l&#39;id dans l&#39;adresse."},{"id":"c23","front":"Un boolean absent peut donner 400.","back":"Ajoute la ligne Jackson, ou envoie true ou false."},{"id":"c24","front":"Spring Web en Boot 4 écrit starter-webmvc.","back":"Tu ne le renommes pas."},{"id":"c25","front":"Communications link failure : MySQL est arrêté.","back":"Démarre MAMP."},{"id":"c26","front":"Port 8089 already in use : une autre appli tourne.","back":"Ctrl+F2 sur l&#39;autre projet."},{"id":"c27","front":"Le context path du TP est celui des properties.","back":"Les URL du cours utilisent /tpfoyer."}]'></div>
+<div class="cards">
+  <div id="face" class="card-face" tabindex="0" role="button" aria-label="Retourner la carte">
+    <p class="front"></p>
+    <p class="back"></p>
+  </div>
+</div>
+<p>
+  <button type="button" id="again">Encore</button>
+  <button type="button" id="knew">Je savais</button>
+</p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script><script src="../assets/flashcards.js"></script>
+</body>
+</html>

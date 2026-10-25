@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. JpaRepository</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html">1. Spring Boot et Maven</a><a href="02-entites.html">2. Entités</a><a href="03-lombok.html">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html" aria-current="page">5. JpaRepository</a><a href="06-injection.html">6. Injection</a><a href="07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>5. JpaRepository</h1>
+<p class="lede">Tu écris une interface vide. Spring écrit la classe au démarrage. Tu n'écris pas le SQL.</p>
+<p class="cite">JpaRepository. Le travail à faire : le package repository, une interface par entité, après les associations.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<pre><code data-lang="java">package tn.esprit.tpfoyer.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.tpfoyer.entity.Bloc;
+
+@Repository
+public interface BlocRepository extends JpaRepository&lt;Bloc, Long&gt; {
+}</code></pre>
+<p><code>Bloc</code> est l'entité. <code>Long</code> est le type de <code>idBloc</code>. Pour Reservation, le deuxième type est <code>String</code>, parce que <code>idReservation</code> est un String.</p>
+<p>Ces méthodes existent déjà. Tu les appelles depuis le service :</p>
+<ul>
+  <li><code>findAll()</code> lit toutes les lignes.</li>
+  <li><code>findById(id)</code> lit une ligne. Le cours appelle <code>.get()</code> dessus.</li>
+  <li><code>save(bloc)</code> ajoute si l'id est nouveau, et modifie si l'id existe déjà.</li>
+  <li><code>deleteById(id)</code> supprime la ligne.</li>
+</ul>
+<p><code>findByNom</code> et JPQL arrivent dans une séance plus tard. Tu ne les ajoutes pas demain.</p>
+<p>Si l'id n'existe pas, <code>findById(id).get()</code> plante. Postman affiche une erreur 500. C'est le comportement du code du cours.</p>
+<fieldset class="quiz" data-id="r1" data-answer="0" data-why="Tu livres une interface. Spring crée la classe."><legend>Dans le package repository, tu commits</legend><button type="button" data-i="0">des interfaces vides</button><button type="button" data-i="1">une classe pleine de SQL par entité</button><button type="button" data-i="2">un seul repository pour toutes les entités</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="r2" data-answer="1" data-why="L'id de Reservation est un String."><legend>ReservationRepository étend JpaRepository de Reservation et de</legend><button type="button" data-i="0">Long</button><button type="button" data-i="1">String</button><button type="button" data-i="2">Date</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="r3" data-answer="0" data-why="save ajoute ou modifie selon l'id."><legend>addBloc et modifyBloc appellent</legend><button type="button" data-i="0">la méthode save</button><button type="button" data-i="1">deux méthodes différentes</button><button type="button" data-i="2">deleteById puis findAll</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="r4" data-answer="2" data-why="get() sur un Optional vide lance une exception. Postman reçoit 500."><legend>findById(99).get() et 99 n'existe pas. Postman affiche</legend><button type="button" data-i="0">200 et un objet vide</button><button type="button" data-i="1">201 et une nouvelle ligne</button><button type="button" data-i="2">une erreur 500</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="06-injection.html">Leçon suivante : Injection</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

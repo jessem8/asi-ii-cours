@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 1 — Bibliothèque</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="../lessons/01-boot-maven.html">1. Spring Boot et Maven</a><a href="../lessons/02-entites.html">2. Entités</a><a href="../lessons/03-lombok.html">3. Lombok</a><a href="../lessons/04-associations.html">4. Associations</a><a href="../lessons/05-jparepository.html">5. JpaRepository</a><a href="../lessons/06-injection.html">6. Injection</a><a href="../lessons/07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="lab-1-bibliotheque.html" aria-current="page">Labo 1 Bibliothèque</a><a href="lab-2-clinique.html">Labo 2 Clinique</a><a href="lab-3-projets.html">Labo 3 Projets</a><a href="lab-4-evenements.html">Labo 4 Événements</a><a href="lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>Lab 1 — Bibliothèque</h1>
+<p class="lede">Un vers plusieurs dans les deux sens, et plusieurs vers plusieurs dans les deux sens. Ouvre la solution quand tu bloques.</p>
+<div class="timer-bar" data-timer data-minutes="60" data-marks="0,6,10,22,32,38,48,56">
+  <p class="clock" aria-live="polite">60:00</p>
+  <button type="button" data-start>Commencer</button>
+  <button type="button" data-pause>Pause</button>
+  <button type="button" data-reset>Remettre à zéro</button>
+</div>
+<div class="plate"><h2>Énoncé</h2><p>Travail à faire. Créer une application Spring Boot (Maven, Java 21) avec Spring Web, Spring Data JPA, MySQL Driver et Lombok. Base bibliodb, port 8089, context path /biblio.</p><p></p><p>Entités, package entity, Lombok sur chaque classe :</p><p>Bibliotheque (idBibliotheque Long généré, nom, adresse).</p><p>Livre (idLivre Long généré, titre, genre de type enum Genre { ROMAN, ESSAI, POESIE }, datePublication de type Date).</p><p>Auteur (idAuteur Long généré, nom, prenom).</p><p></p><p>Associations :</p><p>Une bibliothèque contient plusieurs livres. Bidirectionnelle. Le livre est le fils.</p><p>Un livre est écrit par plusieurs auteurs et un auteur écrit plusieurs livres. Bidirectionnelle. L'auteur est le fils.</p><p></p><p>Package repository, package service (interface + implémentation), package control. CRUD Postman pour chaque entité.</p></div>
+<svg class="diagram" viewBox="0 0 680 180" role="img" aria-label="Bibliotheque Livre Auteur"><rect x="20" y="40" width="170" height="70" fill="#f6fafc" stroke="#143652"/><text x="105" y="62" text-anchor="middle" font-size="14" fill="#17212b">Bibliotheque</text><rect x="250" y="40" width="150" height="90" fill="#f6fafc" stroke="#143652"/><text x="325" y="62" text-anchor="middle" font-size="14" fill="#17212b">Livre</text><rect x="470" y="40" width="150" height="70" fill="#f6fafc" stroke="#143652"/><text x="545" y="62" text-anchor="middle" font-size="14" fill="#17212b">Auteur</text></svg><p>1 — * entre Bibliotheque et Livre. * — * entre Livre et Auteur. Livre et Auteur sont les fils.</p>
+<h2>Checklist</h2>
+<label class="check"><input type="checkbox" data-step="s0"> Projet Maven, Java 21, les quatre dépendances, SDK 21.</label><label class="check"><input type="checkbox" data-step="s1"> application.properties : bibliodb, port 8089, /biblio, show-sql, update, la ligne Jackson.</label><label class="check"><input type="checkbox" data-step="s2"> Enum Genre et les trois entités, sans association. Lancer. Trois tables.</label><label class="check"><input type="checkbox" data-step="s3"> Associations. Livre est le fils des deux liens. Relancer. Quatre tables.</label><label class="check"><input type="checkbox" data-step="s4"> Trois repositories. JpaRepository, le bon type d'id.</label><label class="check"><input type="checkbox" data-step="s5"> Trois interfaces de service et trois implémentations.</label><label class="check"><input type="checkbox" data-step="s6"> Trois controllers. Cinq mappings chacun.</label><label class="check"><input type="checkbox" data-step="s7"> Postman : un CRUD complet sur Bibliotheque, puis Livre, puis Auteur.</label>
+<h2>Indices</h2>
+<p><button type="button" data-reveal data-show="Indice 1" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliothequeh0">Indice 1</button></p><div id="ex1-bibliothequeh0" hidden><p>Le fils Livre porte @ManyToOne Bibliotheque bibliotheque. Bibliotheque porte @OneToMany(mappedBy = "bibliotheque") et @JsonIgnore.</p></div><p><button type="button" data-reveal data-show="Indice 2" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliothequeh1">Indice 2</button></p><div id="ex1-bibliothequeh1" hidden><p>Le fils Auteur porte @ManyToMany(mappedBy = "auteurs") et @JsonIgnore. Livre porte @ManyToMany Set auteurs.</p></div><p><button type="button" data-reveal data-show="Indice 3" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliothequeh2">Indice 3</button></p><div id="ex1-bibliothequeh2" hidden><p>genre est un enum STRING. datePublication est @Temporal DATE. La colonne de la date est date_publication.</p></div>
+<h2>Tables attendues</h2>
+<ul>
+<li>bibliotheque (id_bibliotheque, nom, adresse)</li>
+<li>livre (id_livre, titre, genre, date_publication, bibliotheque_id_bibliotheque)</li>
+<li>auteur (id_auteur, nom, prenom)</li>
+<li>livre_auteurs (livres_id_livre, auteurs_id_auteur)</li>
+</ul><p class="cite">MySQL n'était pas démarré quand ces pages ont été écrites. Cette liste suit la règle déjà vue dans tpfoyerdb : idChambre devient id_chambre, typeC devient typec. Les cinq projets compilent avec le JDK 21.</p>
+<h2>Postman</h2>
+<h3>Bibliotheque</h3><p><code>POST http://localhost:8089/biblio/bibliotheque/add-bibliotheque</code></p><pre><code data-lang="json">{
+  "idBibliotheque": null,
+  "nom": "Exemple",
+  "adresse": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/biblio/bibliotheque/retrieve-all-bibliotheques</code>, GET avec un id, PUT <code>modify-bibliotheque</code> avec l'id rempli, DELETE <code>remove-bibliotheque/{id}</code>.</p>
+<h3>Livre</h3><p><code>POST http://localhost:8089/biblio/livre/add-livre</code></p><pre><code data-lang="json">{
+  "idLivre": null,
+  "titre": "Exemple",
+  "genre": "ROMAN",
+  "datePublication": "2026-10-26",
+  "bibliotheque": null,
+  "auteurs": []
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/biblio/livre/retrieve-all-livres</code>, GET avec un id, PUT <code>modify-livre</code> avec l'id rempli, DELETE <code>remove-livre/{id}</code>.</p>
+<h3>Auteur</h3><p><code>POST http://localhost:8089/biblio/auteur/add-auteur</code></p><pre><code data-lang="json">{
+  "idAuteur": null,
+  "nom": "Exemple",
+  "prenom": "Exemple"
+}</code></pre>
+<p>Puis GET <code>http://localhost:8089/biblio/auteur/retrieve-all-auteurs</code>, GET avec un id, PUT <code>modify-auteur</code> avec l'id rempli, DELETE <code>remove-auteur/{id}</code>.</p>
+<h2>Solution</h2>
+<p>Même forme que le projet du cours. Tu tapes la version ci-dessous, avec le port 8089.</p>
+<p><button type="button" data-reveal data-show="student-application.properties" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-studentapplicationproperties">student-application.properties</button></p><div id="ex1-bibliotheque-studentapplicationproperties" hidden><pre><code data-lang="properties">spring.datasource.url=jdbc:mysql://localhost:3306/bibliodb?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=&lt;the MAMP MySQL password&gt;
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jackson.deserialization.fail-on-null-for-primitives=false
+server.port=8089
+server.servlet.context-path=/biblio</code></pre></div>
+<p><button type="button" data-reveal data-show="Genre.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-Genrejava">Genre.java</button></p><div id="ex1-bibliotheque-Genrejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.entity;
+
+public enum Genre {
+    ROMAN, ESSAI, POESIE
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Auteur.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-Auteurjava">Auteur.java</button></p><div id="ex1-bibliotheque-Auteurjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Auteur {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idAuteur;
+    private String nom;
+    private String prenom;
+    @ManyToMany(mappedBy = "auteurs")
+    @JsonIgnore
+    private Set&lt;Livre&gt; livres;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Bibliotheque.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-Bibliothequejava">Bibliotheque.java</button></p><div id="ex1-bibliotheque-Bibliothequejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Bibliotheque {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idBibliotheque;
+    private String nom;
+    private String adresse;
+    @OneToMany(mappedBy = "bibliotheque")
+    @JsonIgnore
+    private Set&lt;Livre&gt; livres;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="Livre.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-Livrejava">Livre.java</button></p><div id="ex1-bibliotheque-Livrejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Date;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Livre {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idLivre;
+    private String titre;
+    @Enumerated(EnumType.STRING)
+    private Genre genre;
+    @Temporal(TemporalType.DATE)
+    private Date datePublication;
+    @ManyToOne
+    private Bibliotheque bibliotheque;
+    @ManyToMany
+    private Set&lt;Auteur&gt; auteurs;
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="AuteurRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-AuteurRepositoryjava">AuteurRepository.java</button></p><div id="ex1-bibliotheque-AuteurRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.biblio.entity.Auteur;
+
+@Repository
+public interface AuteurRepository extends JpaRepository&lt;Auteur, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="BibliothequeRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-BibliothequeRepositoryjava">BibliothequeRepository.java</button></p><div id="ex1-bibliotheque-BibliothequeRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.biblio.entity.Bibliotheque;
+
+@Repository
+public interface BibliothequeRepository extends JpaRepository&lt;Bibliotheque, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="LivreRepository.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-LivreRepositoryjava">LivreRepository.java</button></p><div id="ex1-bibliotheque-LivreRepositoryjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import tn.esprit.biblio.entity.Livre;
+
+@Repository
+public interface LivreRepository extends JpaRepository&lt;Livre, Long&gt; {
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IAuteurService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-IAuteurServicejava">IAuteurService.java</button></p><div id="ex1-bibliotheque-IAuteurServicejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import tn.esprit.biblio.entity.Auteur;
+
+import java.util.List;
+
+public interface IAuteurService {
+    List&lt;Auteur&gt; retrieveAllAuteurs();
+    Auteur retrieveAuteur(Long auteurId);
+    Auteur addAuteur(Auteur auteur);
+    void removeAuteur(Long auteurId);
+    Auteur modifyAuteur(Auteur auteur);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="IBibliothequeService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-IBibliothequeServicejava">IBibliothequeService.java</button></p><div id="ex1-bibliotheque-IBibliothequeServicejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import tn.esprit.biblio.entity.Bibliotheque;
+
+import java.util.List;
+
+public interface IBibliothequeService {
+    List&lt;Bibliotheque&gt; retrieveAllBibliotheques();
+    Bibliotheque retrieveBibliotheque(Long bibliothequeId);
+    Bibliotheque addBibliotheque(Bibliotheque bibliotheque);
+    void removeBibliotheque(Long bibliothequeId);
+    Bibliotheque modifyBibliotheque(Bibliotheque bibliotheque);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="ILivreService.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-ILivreServicejava">ILivreService.java</button></p><div id="ex1-bibliotheque-ILivreServicejava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import tn.esprit.biblio.entity.Livre;
+
+import java.util.List;
+
+public interface ILivreService {
+    List&lt;Livre&gt; retrieveAllLivres();
+    Livre retrieveLivre(Long livreId);
+    Livre addLivre(Livre livre);
+    void removeLivre(Long livreId);
+    Livre modifyLivre(Livre livre);
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="AuteurServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-AuteurServiceImpljava">AuteurServiceImpl.java</button></p><div id="ex1-bibliotheque-AuteurServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.biblio.entity.Auteur;
+import tn.esprit.biblio.repository.AuteurRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class AuteurServiceImpl implements IAuteurService {
+
+    AuteurRepository auteurRepository;
+
+    public List&lt;Auteur&gt; retrieveAllAuteurs() {
+        return auteurRepository.findAll();
+    }
+
+    public Auteur retrieveAuteur(Long auteurId) {
+        return auteurRepository.findById(auteurId).get();
+    }
+
+    public Auteur addAuteur(Auteur auteur) {
+        return auteurRepository.save(auteur);
+    }
+
+    public void removeAuteur(Long auteurId) {
+        auteurRepository.deleteById(auteurId);
+    }
+
+    public Auteur modifyAuteur(Auteur auteur) {
+        return auteurRepository.save(auteur);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="BibliothequeServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-BibliothequeServiceImpljava">BibliothequeServiceImpl.java</button></p><div id="ex1-bibliotheque-BibliothequeServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.biblio.entity.Bibliotheque;
+import tn.esprit.biblio.repository.BibliothequeRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class BibliothequeServiceImpl implements IBibliothequeService {
+
+    BibliothequeRepository bibliothequeRepository;
+
+    public List&lt;Bibliotheque&gt; retrieveAllBibliotheques() {
+        return bibliothequeRepository.findAll();
+    }
+
+    public Bibliotheque retrieveBibliotheque(Long bibliothequeId) {
+        return bibliothequeRepository.findById(bibliothequeId).get();
+    }
+
+    public Bibliotheque addBibliotheque(Bibliotheque bibliotheque) {
+        return bibliothequeRepository.save(bibliotheque);
+    }
+
+    public void removeBibliotheque(Long bibliothequeId) {
+        bibliothequeRepository.deleteById(bibliothequeId);
+    }
+
+    public Bibliotheque modifyBibliotheque(Bibliotheque bibliotheque) {
+        return bibliothequeRepository.save(bibliotheque);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="LivreServiceImpl.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-LivreServiceImpljava">LivreServiceImpl.java</button></p><div id="ex1-bibliotheque-LivreServiceImpljava" hidden><pre><code data-lang="java">package tn.esprit.biblio.service;
+
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.esprit.biblio.entity.Livre;
+import tn.esprit.biblio.repository.LivreRepository;
+
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class LivreServiceImpl implements ILivreService {
+
+    LivreRepository livreRepository;
+
+    public List&lt;Livre&gt; retrieveAllLivres() {
+        return livreRepository.findAll();
+    }
+
+    public Livre retrieveLivre(Long livreId) {
+        return livreRepository.findById(livreId).get();
+    }
+
+    public Livre addLivre(Livre livre) {
+        return livreRepository.save(livre);
+    }
+
+    public void removeLivre(Long livreId) {
+        livreRepository.deleteById(livreId);
+    }
+
+    public Livre modifyLivre(Livre livre) {
+        return livreRepository.save(livre);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="AuteurRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-AuteurRestControllerjava">AuteurRestController.java</button></p><div id="ex1-bibliotheque-AuteurRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.biblio.entity.Auteur;
+import tn.esprit.biblio.service.IAuteurService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/auteur")
+public class AuteurRestController {
+
+    IAuteurService auteurService;
+
+    // http://localhost:8089/biblio/auteur/retrieve-all-auteurs
+    @GetMapping("/retrieve-all-auteurs")
+    public List&lt;Auteur&gt; getAuteurs() {
+        return auteurService.retrieveAllAuteurs();
+    }
+
+    // http://localhost:8089/biblio/auteur/retrieve-auteur/1
+    @GetMapping("/retrieve-auteur/{auteur-id}")
+    public Auteur retrieveAuteur(@PathVariable("auteur-id") Long id) {
+        return auteurService.retrieveAuteur(id);
+    }
+
+    @PostMapping("/add-auteur")
+    public Auteur addAuteur(@RequestBody Auteur body) {
+        return auteurService.addAuteur(body);
+    }
+
+    @DeleteMapping("/remove-auteur/{auteur-id}")
+    public void removeAuteur(@PathVariable("auteur-id") Long id) {
+        auteurService.removeAuteur(id);
+    }
+
+    @PutMapping("/modify-auteur")
+    public Auteur modifyAuteur(@RequestBody Auteur body) {
+        return auteurService.modifyAuteur(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="BibliothequeRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-BibliothequeRestControllerjava">BibliothequeRestController.java</button></p><div id="ex1-bibliotheque-BibliothequeRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.biblio.entity.Bibliotheque;
+import tn.esprit.biblio.service.IBibliothequeService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/bibliotheque")
+public class BibliothequeRestController {
+
+    IBibliothequeService bibliothequeService;
+
+    // http://localhost:8089/biblio/bibliotheque/retrieve-all-bibliotheques
+    @GetMapping("/retrieve-all-bibliotheques")
+    public List&lt;Bibliotheque&gt; getBibliotheques() {
+        return bibliothequeService.retrieveAllBibliotheques();
+    }
+
+    // http://localhost:8089/biblio/bibliotheque/retrieve-bibliotheque/1
+    @GetMapping("/retrieve-bibliotheque/{bibliotheque-id}")
+    public Bibliotheque retrieveBibliotheque(@PathVariable("bibliotheque-id") Long id) {
+        return bibliothequeService.retrieveBibliotheque(id);
+    }
+
+    @PostMapping("/add-bibliotheque")
+    public Bibliotheque addBibliotheque(@RequestBody Bibliotheque body) {
+        return bibliothequeService.addBibliotheque(body);
+    }
+
+    @DeleteMapping("/remove-bibliotheque/{bibliotheque-id}")
+    public void removeBibliotheque(@PathVariable("bibliotheque-id") Long id) {
+        bibliothequeService.removeBibliotheque(id);
+    }
+
+    @PutMapping("/modify-bibliotheque")
+    public Bibliotheque modifyBibliotheque(@RequestBody Bibliotheque body) {
+        return bibliothequeService.modifyBibliotheque(body);
+    }
+}</code></pre></div>
+<p><button type="button" data-reveal data-show="LivreRestController.java" data-hide="Cacher" aria-expanded="false" aria-controls="ex1-bibliotheque-LivreRestControllerjava">LivreRestController.java</button></p><div id="ex1-bibliotheque-LivreRestControllerjava" hidden><pre><code data-lang="java">package tn.esprit.biblio.control;
+
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import tn.esprit.biblio.entity.Livre;
+import tn.esprit.biblio.service.ILivreService;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/livre")
+public class LivreRestController {
+
+    ILivreService livreService;
+
+    // http://localhost:8089/biblio/livre/retrieve-all-livres
+    @GetMapping("/retrieve-all-livres")
+    public List&lt;Livre&gt; getLivres() {
+        return livreService.retrieveAllLivres();
+    }
+
+    // http://localhost:8089/biblio/livre/retrieve-livre/1
+    @GetMapping("/retrieve-livre/{livre-id}")
+    public Livre retrieveLivre(@PathVariable("livre-id") Long id) {
+        return livreService.retrieveLivre(id);
+    }
+
+    @PostMapping("/add-livre")
+    public Livre addLivre(@RequestBody Livre body) {
+        return livreService.addLivre(body);
+    }
+
+    @DeleteMapping("/remove-livre/{livre-id}")
+    public void removeLivre(@PathVariable("livre-id") Long id) {
+        livreService.removeLivre(id);
+    }
+
+    @PutMapping("/modify-livre")
+    public Livre modifyLivre(@RequestBody Livre body) {
+        return livreService.modifyLivre(body);
+    }
+}</code></pre></div>
+<h2>Grille</h2>
+<label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
+<label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
+<label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
+<label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
+<label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
+<fieldset class="quiz" data-id="ex1-bibliothequeq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

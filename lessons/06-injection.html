@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6. Injection</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html">1. Spring Boot et Maven</a><a href="02-entites.html">2. Entités</a><a href="03-lombok.html">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html">5. JpaRepository</a><a href="06-injection.html" aria-current="page">6. Injection</a><a href="07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>6. Injection</h1>
+<p class="lede">Ta classe ne fait pas <code>new</code>. Spring crée les objets et les passe aux autres.</p>
+<p class="cite">Injection des dépendances. Couplage fort : ta classe construit l'autre avec new. Couplage faible : elle demande une interface, Spring fournit l'objet.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<p>Avant Spring, un service écrivait <code>new BlocRepository()</code>. Si le repository change, le service doit changer aussi. C'est le couplage fort du cours.</p>
+<p>Avec Spring, tu déclares le champ. Spring le remplit.</p>
+<pre><code data-lang="java">@Service
+@AllArgsConstructor
+public class BlocServiceImpl implements IBlocService {
+    BlocRepository blocRepository;
+
+    public List&lt;Bloc&gt; retrieveAllBlocs() {
+        return blocRepository.findAll();
+    }
+}</code></pre>
+<p><code>@Service</code> dit à Spring de créer cet objet. <code>@AllArgsConstructor</code> est le constructeur. Spring voit ce constructeur et met le repository dedans.</p>
+<p>Le controller fait la même chose, mais son champ est l'interface <code>IBlocService</code>, pas la classe <code>BlocServiceImpl</code>.</p>
+<p><button type="button" data-reveal data-show="Quand utiliser @Qualifier ?" data-hide="Cacher" aria-expanded="false" aria-controls="iq">Quand utiliser @Qualifier ?</button></p><div id="iq" hidden><p>Seulement si deux classes implémentent la même interface et que les deux ont @Service. Avec une seule classe, tu n'ajoutes ni @Qualifier ni @Primary.</p></div>
+<fieldset class="quiz" data-id="i1" data-answer="1" data-why="Spring crée le repository et le donne au service."><legend>Qui remplit le champ blocRepository ?</legend><button type="button" data-i="0">un new dans le service</button><button type="button" data-i="1">Spring, parce que la classe a @Service</button><button type="button" data-i="2">phpMyAdmin</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="i2" data-answer="0" data-why="Le controller dépend de l'interface."><legend>Le champ du controller a pour type</legend><button type="button" data-i="0">IBlocService</button><button type="button" data-i="1">BlocServiceImpl</button><button type="button" data-i="2">BlocRepository</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="i3" data-answer="2" data-why="Sans @Service, Spring ne crée pas l'objet. L'injection échoue au démarrage."><legend>Tu oublies @Service sur l'implémentation. Au démarrage</legend><button type="button" data-i="0">la table n'est pas créée</button><button type="button" data-i="1">Postman renvoie une liste vide</button><button type="button" data-i="2">Spring ne trouve pas le service</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="i4" data-answer="1" data-why="new sur une classe concrète est le couplage fort du slide."><legend>Quel code est un couplage fort ?</legend><button type="button" data-i="0">un champ rempli par Spring</button><button type="button" data-i="1">new DaoImpl() dans la classe qui l'utilise</button><button type="button" data-i="2">une interface sans méthode</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="07-rest.html">Leçon suivante : REST et Postman</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>

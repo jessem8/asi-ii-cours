@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Entités</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<a class="skip" href="#content">Aller au contenu</a>
+<header class="mast">
+  <a class="brand" href="../index.html">ASI II <span>le cours</span></a>
+  <p class="hour">60 minutes, 3 entités, sur ta machine</p>
+</header>
+<div class="layout">
+  <nav class="rail" aria-label="Cours"><p>Cours</p><a href="01-boot-maven.html">1. Spring Boot et Maven</a><a href="02-entites.html" aria-current="page">2. Entités</a><a href="03-lombok.html">3. Lombok</a><a href="04-associations.html">4. Associations</a><a href="05-jparepository.html">5. JpaRepository</a><a href="06-injection.html">6. Injection</a><a href="07-rest.html">7. REST et Postman</a><p>Préparer</p><a href="../index.html">Par où commencer</a><a href="../reference/battle-plan.html">Plan des 60 minutes</a><a href="../reference/cheat-sheet.html">Fiche</a><a href="../reference/shortcuts.html">Raccourcis</a><a href="../reference/flashcards.html">Cartes</a><a href="../reference/error-doctor.html">Erreurs</a><a href="../reference/glossary.html">Mots du cours</a><p>S'entraîner</p><a href="../labs/lab-1-bibliotheque.html">Labo 1 Bibliothèque</a><a href="../labs/lab-2-clinique.html">Labo 2 Clinique</a><a href="../labs/lab-3-projets.html">Labo 3 Projets</a><a href="../labs/lab-4-evenements.html">Labo 4 Événements</a><a href="../labs/lab-5-examen-blanc.html">Labo 5 Examen blanc</a></nav>
+  <main id="content">
+
+<h1>2. Entités</h1>
+<p class="lede">Une entité est une classe Java. Au démarrage, Hibernate en fait une table.</p>
+<p class="cite">Spring Data JPA, Entités. @Entity sur la classe. @Id sur la clé. @GeneratedValue est facultatif.</p>
+<p data-progress-label>0 sur 0</p><div class="progress-line" data-progress><span></span></div>
+<h2>La plus petite entité</h2>
+<pre><code data-lang="java">@Entity
+public class Bloc {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idBloc;
+    private String nomBloc;
+    private Long capaciteBloc;
+}</code></pre>
+<p><code>@Entity</code> est obligatoire. <code>@Id</code> est obligatoire. <code>IDENTITY</code> veut dire que MySQL choisit le numéro.</p>
+<p>Si la clé est un <code>String</code>, comme <code>idReservation</code>, tu mets seulement <code>@Id</code>. Tu envoies la valeur toi-même dans le JSON.</p>
+<h2>Enum et date</h2>
+<pre><code data-lang="java">@Enumerated(EnumType.STRING)
+private TypeChambre typeC;
+
+@Temporal(TemporalType.DATE)
+private Date dateNaissance;</code></pre>
+<p><code>STRING</code> enregistre le mot <code>DOUBLE</code>, pas le chiffre 0 ou 1.</p>
+<p>Le nom de la colonne : une majuscule au milieu du mot devient <code>_</code>. <code>idChambre</code> devient <code>id_chambre</code>. <code>typeC</code> devient <code>typec</code>, parce que le C est à la fin. C'est ce qu'on a vu dans ta base <code>tpfoyerdb</code>.</p>
+<p>Boot 4 affiche un avertissement sur <code>@Temporal</code>. L'application démarre quand même. Tu gardes l'annotation du cours.</p>
+<fieldset class="quiz" data-id="e1" data-answer="1" data-why="Sans @Id, l'entité n'a pas de clé. Le démarrage échoue."><legend>Tu enlèves @Id et tu lances. Que se passe-t-il ?</legend><button type="button" data-i="0">La table est créée sans clé</button><button type="button" data-i="1">Le démarrage échoue</button><button type="button" data-i="2">MySQL invente une clé tout seul</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="e2" data-answer="0" data-why="EnumType.STRING garde le nom de la constante."><legend>TypeChambre.DOUBLE avec EnumType.STRING est enregistré comme</legend><button type="button" data-i="0">le texte DOUBLE</button><button type="button" data-i="1">le chiffre 1</button><button type="button" data-i="2">une nouvelle table</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="e3" data-answer="1" data-why="Le C est à la fin, donc pas de _. MySQL met le nom en minuscules."><legend>Le champ typeC devient la colonne</legend><button type="button" data-i="0">type_c</button><button type="button" data-i="1">typec</button><button type="button" data-i="2">typeC</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="e4" data-answer="2" data-why="La majuscule est au milieu, donc un _ est ajouté."><legend>idChambre devient</legend><button type="button" data-i="0">idchambre</button><button type="button" data-i="1">chambre_id</button><button type="button" data-i="2">id_chambre</button><p class="feedback" hidden></p></fieldset>
+<p><a class="btn" href="03-lombok.html">Leçon suivante : Lombok</a></p>
+
+  </main>
+</div>
+<script src="../assets/highlight.js"></script><script src="../assets/app.js"></script>
+</body>
+</html>
