@@ -447,12 +447,12 @@ public class LivreRestController {
 <h2>Grille</h2>
 <label class="check"><input type="checkbox" data-step="g1"> L'application démarre, Tomcat sur 8089.</label>
 <label class="check"><input type="checkbox" data-step="g2"> Les trois entités et l'enum, s'il y en a un, compilent.</label>
-<label class="check"><input type="checkbox" data-step="g3"> Le fils a mappedBy et @JsonIgnore. L'autre côté possède le lien.</label>
+<label class="check"><input type="checkbox" data-step="g3"> Le propriétaire de la relation est identifié. mappedBy est sur l'inverse ; @JsonIgnore évite la boucle JSON si nécessaire.</label>
 <label class="check"><input type="checkbox" data-step="g4"> Les tables et colonnes correspondent à la liste.</label>
 <label class="check"><input type="checkbox" data-step="g5"> Trois repositories sans corps de méthode.</label>
 <label class="check"><input type="checkbox" data-step="g6"> Trois services, injection par constructeur, pas de new.</label>
 <label class="check"><input type="checkbox" data-step="g7"> Trois controllers, cinq mappings, URL complète testée.</label>
-<fieldset class="quiz" data-id="ex1-bibliothequeq" data-answer="0" data-why="Le fils a mappedBy et JsonIgnore. L'autre côté garde la clé ou la table de jointure."><legend>Sur le fils tu écris</legend><button type="button" data-i="0">mappedBy et JsonIgnore</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
+<fieldset class="quiz" data-id="ex1-bibliothequeq" data-answer="0" data-why="mappedBy indique le champ propriétaire depuis le côté inverse. @JsonIgnore concerne la sérialisation JSON."><legend>Sur le côté inverse d’une relation bidirectionnelle, comment désignes-tu le côté propriétaire ?</legend><button type="button" data-i="0">mappedBy avec le nom du champ propriétaire</button><button type="button" data-i="1">la clé étrangère, sans mappedBy</button><button type="button" data-i="2">un repository à la place de l'entité</button><button type="button" data-i="3">le context path dans les properties</button><p class="feedback" hidden></p></fieldset>
 
   </main>
 </div>
