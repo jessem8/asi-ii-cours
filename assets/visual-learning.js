@@ -181,6 +181,47 @@
     }
   ];
 
+
+  // Complete the eight combinations: four cardinalities × two possible directions.
+  cases[0].kind="11"; cases[0].dir="bi";
+  cases[1].kind="1n"; cases[1].dir="bi";
+  cases[2].kind="1n"; cases[2].dir="uni";
+  cases[3].kind="nn"; cases[3].dir="bi";
+  cases.push(
+    {
+      kind:"11",dir:"uni",title:"1 vers 1",a:"Universite",b:"Foyer",left:"1",right:"1",
+      relation:"Universite connaît Foyer, mais Foyer ne référence pas Universite.",
+      codeA:"@OneToOne\nprivate Foyer foyer;",codeB:"// Pas de champ Universite",
+      tables:[["universite",["id_universite (PK)","foyer_id_foyer (FK)"]],["foyer",["id_foyer (PK)"]]],
+      owner:"Universite",inverse:"aucun",fk:"universite.foyer_id_foyer",
+      explanation:"Un seul sens : Universite porte le champ et la clé étrangère. Pas de mappedBy."
+    },
+    {
+      kind:"n1",dir:"uni",title:"N vers 1",a:"Bloc",b:"Foyer",left:"N",right:"1",
+      relation:"Chaque Bloc connaît son Foyer ; Foyer ne connaît pas sa liste de blocs.",
+      codeA:"@ManyToOne\nprivate Foyer foyer;",codeB:"// Pas de collection de Bloc",
+      tables:[["bloc",["id_bloc (PK)","foyer_id_foyer (FK)"]],["foyer",["id_foyer (PK)"]]],
+      owner:"Bloc",inverse:"aucun",fk:"bloc.foyer_id_foyer",
+      explanation:"@ManyToOne fonctionne seul : la clé étrangère est dans la table bloc. Pas de mappedBy."
+    },
+    {
+      kind:"n1",dir:"bi",title:"N vers 1",a:"Bloc",b:"Foyer",left:"N",right:"1",
+      relation:"Bloc connaît Foyer et Foyer connaît la liste de ses blocs.",
+      codeA:"@ManyToOne\nprivate Foyer foyer;",
+      codeB:'@OneToMany(mappedBy = "foyer")\n@JsonIgnore\nprivate Set<Bloc> blocs;',
+      tables:[["bloc",["id_bloc (PK)","foyer_id_foyer (FK)"]],["foyer",["id_foyer (PK)"]]],
+      owner:"Bloc",inverse:"Foyer",fk:"bloc.foyer_id_foyer",
+      explanation:"Même lien que 1:N bidirectionnel, vu depuis le côté plusieurs. Bloc possède la clé étrangère ; Foyer porte mappedBy."
+    },
+    {
+      kind:"nn",dir:"uni",title:"N vers N",a:"Reservation",b:"Etudiant",left:"N",right:"N",
+      relation:"Reservation connaît ses étudiants, mais Etudiant n'a pas de champ vers Reservation.",
+      codeA:"@ManyToMany\nprivate Set<Etudiant> etudiants;",codeB:"// Pas de liste Reservation",
+      tables:[["reservation",["id_reservation (PK)"]],["reservation_etudiants",["reservation_id_reservation (FK)","etudiants_id_etudiant (FK)"]],["etudiant",["id_etudiant (PK)"]]],
+      owner:"Reservation",inverse:"aucun",fk:"table de jointure reservation_etudiants",
+      explanation:"Une seule classe contient @ManyToMany. Hibernate utilise une table de jointure. Pas de mappedBy."
+    }
+  );
   function relationSVG(c) {
     const NS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(NS, "svg");
@@ -201,8 +242,9 @@
     shape("text", {x:546,y:81,"text-anchor":"middle","font-size":22,"font-weight":700,fill:"#1d5c45"}, c.b);
     shape("text", {x:546,y:108,"text-anchor":"middle","font-size":13,fill:"#3a705f"}, "Entité Java");
     shape("line", {x1:253,y1:95,x2:427,y2:95,stroke:"#476d83","stroke-width":3});
+    shape("text", {x:341,y:142,"text-anchor":"middle","font-size":14,fill:"#143652"}, c.dir==="uni"?"A → B":"A ↔ B");
     shape("rect", {x:276,y:70,width:130,height:49,rx:24,fill:"#fff",stroke:"#b4cbd9"});
-    shape("text", {x:341,y:101,"text-anchor":"middle","font-size":18,"font-weight":700,fill:"#143652"}, c.left + "  ↔  " + c.right);
+    shape("text", {x:341,y:101,"text-anchor":"middle","font-size":18,"font-weight":700,fill:"#143652"}, c.left + " : " + c.right);
     shape("text", {x:340,y:25,"text-anchor":"middle","font-size":13,fill:"#4c6171"}, "Cardinalités");
     return svg;
   }
@@ -210,11 +252,14 @@
     const section = node("section", "vl-panel vl-relations");
     section.setAttribute("aria-label", "Explorer les associations JPA");
     add(section, "p", "vl-kicker", "Laboratoire visuel interactif");
-    add(section, "h2", "", "Visualiser les associations JPA");
-    add(section, "p", "vl-intro", "Sélectionne une relation, puis compare les objets Java aux tables créées par Hibernate.");
+    add(section, "h2", "", "4 cardinalités × 2 directions");
+    add(section, "p", "vl-intro", "1:N dit combien. Un seul sens dit qui connaît qui. Teste les huit combinaisons, puis inspecte le Java et le SQL.");
     const tabs = add(section, "div", "vl-tabs");
     tabs.setAttribute("role", "group");
     tabs.setAttribute("aria-label", "Choisir un type d'association");
+    const directionbar = add(section, "div", "vl-modes");
+    directionbar.setAttribute("role", "group");
+    directionbar.setAttribute("aria-label", "Sens de la relation");
     const modebar = add(section, "div", "vl-modes");
     modebar.setAttribute("role", "group");
     modebar.setAttribute("aria-label", "Afficher les objets ou la base");
@@ -224,8 +269,11 @@
     const codebox = add(section, "div", "vl-codegrid");
     const challenge = add(section, "div", "vl-challenge");
     let selected = 0;
+    let kind = "11";
+    let direction = "uni";
     let mode = "java";
     const buttons = [];
+    const dirs = [];
     const modes = [];
     const cardHeader = add(challenge, "h3", "", "Vérifie ta compréhension");
     add(challenge, "p", "", "Où se trouve la clé étrangère ou la table de jointure ?");
@@ -234,18 +282,21 @@
     response.setAttribute("aria-live", "polite");
 
     function render() {
+      selected = cases.findIndex(function (x) { return x.kind === kind && x.dir === direction; });
+      if (selected < 0) throw Error("Missing JPA configuration: " + kind + " " + direction);
       const c = cases[selected];
-      buttons.forEach(function (b,i){ b.setAttribute("aria-pressed", i === selected ? "true" : "false"); });
+      buttons.forEach(function (b){ b.setAttribute("aria-pressed", b.dataset.kind === kind ? "true" : "false"); });
+      dirs.forEach(function (b){ b.setAttribute("aria-pressed", b.dataset.direction === direction ? "true" : "false"); });
       modes.forEach(function (b){ b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false"); });
       display.replaceChildren();
       add(display, "p", "vl-caption", c.relation);
       if (mode === "java") {
         const drawing = add(display, "div", "vl-diagram");
         drawing.appendChild(relationSVG(c));
-        add(display, "p", "vl-caption", "Les symboles 1 et N montrent combien d'objets peuvent être liés. Les flèches ne désignent pas le propriétaire SQL.");
+        add(display, "p", "vl-caption", "1 et N indiquent la cardinalité. A → B ou A ↔ B indique les références Java, et non le côté qui stocke la clé étrangère.");
       } else {
         const board = add(display, "div", "vl-db");
-        add(board, "p", "vl-small-label", "Schéma de base de données simplifié");
+        add(board, "p", "vl-small-label", "Schéma SQL simplifié. Les noms exacts dépendent du naming Hibernate.");
         const row = add(board, "div", "vl-db-row");
         c.tables.forEach(function(t){
           const tbl = add(row, "div", "vl-table");
@@ -279,12 +330,17 @@
         });
       });
     }
-    cases.forEach(function(c,i){
-      const btn=add(tabs,"button","",c.title);
-      btn.type="button";
-      btn.setAttribute("aria-pressed","false");
-      btn.addEventListener("click",function(){selected=i;render();});
+    [["11","1 : 1"],["1n","1 : N"],["n1","N : 1"],["nn","N : N"]].forEach(function(pair){
+      const btn=add(tabs,"button","",pair[1]);
+      btn.type="button"; btn.dataset.kind=pair[0];
+      btn.addEventListener("click",function(){kind=pair[0];render();});
       buttons.push(btn);
+    });
+    [["uni","Un seul sens →"],["bi","Deux sens ↔"]].forEach(function(pair){
+      const btn=add(directionbar,"button","",pair[1]);
+      btn.type="button"; btn.dataset.direction=pair[0];
+      btn.addEventListener("click",function(){direction=pair[0];render();});
+      dirs.push(btn);
     });
     [["java","Objets Java"],["sql","Tables MySQL"]].forEach(function(pair){
       const btn=add(modebar,"button","",pair[1]);
@@ -297,6 +353,42 @@
     mount(section);
   }
 
+
+  // Purely illustrative, offline HTTP playground. Does not make fetch() requests.
+  function miniPostman() {
+    const firstQuiz=main.querySelector(".quiz"); if(!firstQuiz)return;
+    const panel=node("section","vl-panel");
+    add(panel,"p","vl-kicker","Entraînement hors ligne");
+    add(panel,"h2","","Mini-Postman : choisis une méthode");
+    add(panel,"p","vl-intro","Simulation fictive : aucun appel au serveur, aucune modification de MySQL. Les exemples illustrent les routes du cours.");
+    const actions=add(panel,"div","vl-tabs");
+    const result=add(panel,"div","vl-details");
+    result.setAttribute("aria-live","polite");
+    const casesHttp=[
+      ["GET tout","GET","/retrieve-all-blocs","Sans corps","200 OK\n[{\"idBloc\":1,\"nomBloc\":\"A\"}]"],
+      ["GET id","GET","/retrieve-bloc/1","ID dans l'URL","200 OK\n{\"idBloc\":1,\"nomBloc\":\"A\"}"],
+      ["POST","POST","/add-bloc",'{"nomBloc":"B","capaciteBloc":50}',"200 OK (méthode du TP)\n{\"idBloc\":2,\"nomBloc\":\"B\"}"],
+      ["PUT","PUT","/modify-bloc",'{"idBloc":1,"nomBloc":"B"}',"200 OK (méthode du TP)\n{\"idBloc\":1,\"nomBloc\":\"B\"}"],
+      ["DELETE","DELETE","/remove-bloc/1","ID dans l'URL","200 OK (méthode du TP, sans corps)"]
+    ];
+    const btns=[];
+    function paint(i){
+      btns.forEach(function(b,n){b.setAttribute("aria-pressed",i===n?"true":"false")});
+      const x=casesHttp[i];result.replaceChildren();
+      add(result,"h3","","Requête");
+      add(result,"code","vl-example",x[1]+" http://localhost:8089/tpfoyer/bloc"+x[2]);
+      add(result,"p","","Corps : "+x[3]);
+      add(result,"h3","","Réponse illustrative");
+      add(result,"pre","",x[4]);
+    }
+    casesHttp.forEach(function(x,i){
+      const b=add(actions,"button","",x[0]);b.type="button";
+      b.addEventListener("click",function(){paint(i)});btns.push(b);
+    });
+    paint(0);firstQuiz.parentElement.insertBefore(panel,firstQuiz);
+  }
+
   if (locationKey === "04-associations.html") relationView();
   else if (journeys[locationKey]) journeyView(journeys[locationKey]);
+  if (locationKey === "07-rest.html") miniPostman();
 })();
